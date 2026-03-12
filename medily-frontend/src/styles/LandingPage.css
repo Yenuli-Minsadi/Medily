@@ -1,0 +1,678 @@
+@import url('https://fonts.googleapis.com/css2?family=Afacad:ital,wght@0,400..700;1,400..700&family=Inter:opsz,wght@14..32,100..900&family=Mulish:wght@200..1000&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Afacad:ital,wght@0,400..700;1,400..700&family=Inter:opsz,wght@14..32,100..900&family=Lexend+Deca:wght@100..900&family=Mulish:wght@200..1000&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+/* Reset and Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.landing-page {
+  min-height: 100vh;
+  background-color: #ffffff;
+}
+
+/* Navigation Bar */
+.navbar {
+  background-color: #0a1929;
+  padding: 1rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-family: "Afacad", sans-serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #C9E6F0;
+  letter-spacing: -0.5px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 2.5rem;
+}
+
+.nav-links a {
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 400;
+  transition: color 0.3s ease;
+  font-family: "Lexend Deca", sans-serif;
+}
+
+.nav-links a:hover {
+  color: #a8b3cf;
+}
+
+.nav-auth {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.btn-login {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  transition: color 0.3s ease;
+  font-family: "Lexend Deca", sans-serif;
+}
+
+.btn-login:hover {
+  color: #a8b3cf;
+}
+
+.btn-signup {
+  background-color: #ffffff;
+  color: #0a1929;
+  border: none;
+  padding: 0.6rem 1.5rem;
+  border-radius: 30px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: "Lexend Deca", sans-serif;
+}
+
+.btn-signup:hover {
+  background-color: #C9E6F0;
+  transform: translateY(-1px);
+}
+
+/* Hero Section */
+.hero {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 5rem 2rem;
+  text-align: center;
+  background: linear-gradient(to bottom, #f8f9fa 0%, #ffffff 100%);
+}
+
+.hero-content {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.hero-badge {
+  display: inline-block;
+  background-color: #e8d4f8;
+  color: #1a1a1a;
+  padding: 0.6rem 1.5rem;
+  border-radius: 50px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 2rem;
+  font-family: "Lexend Deca", sans-serif;
+}
+
+.hero-title {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+  letter-spacing: -1px;
+  font-family: "Lexend Deca", sans-serif;
+}
+
+.hero-subtitle {
+  font-size: 1.1rem;
+  color: #4a5568;
+  line-height: 1.6;
+  margin-bottom: 3rem;
+  font-weight: 400;
+  font-family: "Lexend Deca", sans-serif;
+}
+
+/* Card Illustration */
+.card-illustration {
+  margin-top: 4rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card-bg {
+  position: relative;
+  width: 450px;
+  height: 250px;
+  background: linear-gradient(135deg, #b8dfe6 0%, #d4e9ed 100%);
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+}
+
+.card-element {
+  position: absolute;
+  background-color: #0a1929;
+  border-radius: 50px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-element-1 {
+  width: 180px;
+  height: 60px;
+  top: 30px;
+  left: 40px;
+}
+
+.card-element-2 {
+  width: 160px;
+  height: 60px;
+  bottom: 40px;
+  right: 50px;
+}
+
+/* CTA Buttons */
+.hero-btns {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  align-items: center;
+  margin-top: 3rem;
+}
+
+.btn-create-account {
+  background-color: #0a1929;
+  color: #ffffff;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(10, 25, 41, 0.2);
+  font-family: "Lexend Deca", sans-serif;
+}
+
+.btn-create-account:hover {
+  background-color: #0d2136;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(10, 25, 41, 0.3);
+}
+
+.btn-have-account {
+  background-color: #d4e9ed;
+  color: #0a1929;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: "Lexend Deca", sans-serif;
+}
+
+.btn-have-account:hover {
+  background-color: #c1dde3;
+  transform: translateY(-2px);
+}
+
+/* Common Section Styles */
+.section-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 5rem 2rem;
+  text-align: center;
+}
+
+.section-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  color: #1d354d;
+  margin-bottom: 1rem;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+  letter-spacing: -0.5px;
+  font-family: "Lexend Deca", sans-serif;
+}
+
+.section-subtitle {
+  font-size: 1.1rem;
+  color: #4a5568;
+  line-height: 1.6;
+  margin-bottom: 3rem;
+  font-family: "Lexend Deca", sans-serif;
+}
+
+/* Features Section */
+.features-section {
+  background-color: #ffffff;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-top: 3rem;
+}
+
+.feature-card {
+  background: linear-gradient(135deg, #b8dfe6 0%, #d4e9ed 100%);
+  border-radius: 16px;
+  height: 120px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+}
+
+/* Secure Sharing Section */
+.secure-sharing-section {
+  background-color: #f9fafb;
+  margin-top: 3rem;
+  margin-bottom: 10rem;
+}
+
+.sharing-steps {
+  display: flex;
+  justify-content: center;
+  gap: 4rem;
+  margin-top: 3rem;
+}
+
+.sharing-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.step-circle {
+  width: 120px;
+  height: 120px;
+  background: linear-gradient(135deg, #b8dfe6 0%, #d4e9ed 100%);
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.step-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+/* Healthcare Professionals Section */
+.healthcare-professionals-section {
+  background-color: #ffffff;
+}
+
+.professionals-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 4rem;
+  margin-top: 3rem;
+  text-align: left;
+}
+
+.professionals-left {
+  flex: 1;
+}
+
+.btn-professional {
+  background-color: #d4e9ed;
+  color: #0a1929;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-professional:hover {
+  background-color: #c1dde3;
+  transform: translateY(-2px);
+}
+
+.professionals-right {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.professional-feature-card {
+  background: linear-gradient(135deg, #b8dfe6 0%, #d4e9ed 100%);
+  border-radius: 16px;
+  padding: 2rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 100px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease;
+}
+
+.professional-feature-card:hover {
+  transform: translateY(-4px);
+}
+
+/* Medical Feed Section */
+.medical-feed-section {
+  background-color: #f9fafb;
+}
+
+.feed-cards {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.feed-card {
+  width: 280px;
+  height: 180px;
+  background: linear-gradient(135deg, #b8dfe6 0%, #d4e9ed 100%);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease;
+}
+
+.feed-card:hover {
+  transform: translateY(-4px);
+}
+
+/* Final CTA Section */
+.final-cta-section {
+  background-color: #ffffff;
+  padding: 6rem 2rem;
+}
+
+.final-cta-title {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+  letter-spacing: -1px;
+}
+
+.final-cta-subtitle {
+  font-size: 1.1rem;
+  color: #4a5568;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.btn-final-cta {
+  background-color: #0a1929;
+  color: #ffffff;
+  border: none;
+  padding: 1rem 2.5rem;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(10, 25, 41, 0.2);
+  font-family: "Lexend Deca", sans-serif;
+}
+
+.btn-final-cta:hover {
+  background-color: #0d2136;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(10, 25, 41, 0.3);
+}
+
+/* Footer */
+.footer {
+  background-color: #0a1929;
+  color: #ffffff;
+  padding: 4rem 0 2rem;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.footer-main {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  gap: 3rem;
+  padding-bottom: 3rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.footer-brand {
+  gap: 1.5rem;
+}
+
+.footer-logo {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #C9E6F0;
+  margin: 0;
+  font-family: "Afacad", sans-serif;
+}
+
+.footer-tagline {
+  color: #a8b3cf;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  max-width: 300px;
+  font-family: "Lexend Deca", sans-serif;
+}
+
+.footer-social {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.social-link {
+  color: #a8b3cf;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.3s ease;
+  font-family: "Lexend Deca", sans-serif;
+}
+
+.social-link:hover {
+  color: #ffffff;
+}
+
+.footer-heading {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 0.5rem 0;
+  font-family: "Lexend Deca", sans-serif;
+
+}
+
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.footer-links a {
+  color: #a8b3cf;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.3s ease;
+  font-family: "Lexend Deca", sans-serif;
+}
+
+.footer-links a:hover {
+  color: #ffffff;
+}
+
+.footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 2rem;
+}
+
+.footer-copyright {
+  color: #a8b3cf;
+  font-size: 0.875rem;
+  margin: 0;
+  font-family: "Lexend Deca", sans-serif;
+}
+
+.footer-bottom-links {
+  display: flex;
+  gap: 2rem;
+}
+
+.footer-bottom-links a {
+  color: #a8b3cf;
+  text-decoration: none;
+  font-size: 0.875rem;
+  transition: color 0.3s ease;
+  font-family: "Lexend Deca", sans-serif;
+}
+
+.footer-bottom-links a:hover {
+  color: #ffffff;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .nav-links {
+    display: none;
+  }
+
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+
+  .card-bg {
+    width: 350px;
+    height: 200px;
+  }
+
+  .card-element-1 {
+    width: 140px;
+    height: 50px;
+  }
+
+  .card-element-2 {
+    width: 120px;
+    height: 50px;
+  }
+
+  .cta-buttons {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .btn-cta-primary,
+  .btn-cta-secondary {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .features-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .sharing-steps {
+    flex-wrap: wrap;
+    gap: 2rem;
+  }
+
+  .professionals-content {
+    flex-direction: column;
+  }
+
+  .professionals-right {
+    width: 100%;
+  }
+
+  .feed-cards {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .section-title {
+    font-size: 2rem;
+  }
+
+  .final-cta-title {
+    font-size: 2rem;
+  }
+
+  .footer-main {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+  }
+
+  .footer-bottom-links {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
