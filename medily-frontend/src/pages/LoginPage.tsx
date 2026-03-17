@@ -1,13 +1,27 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 import "../styles/Login.css";
 
-// Hardcoded credentials
+// ─── Credentials ──────────────────────────────────────────────────────────────
 const DOCTOR_CREDENTIALS = {
   email: "doctor@medily.com",
   password: "doctor123",
   role: "doctor",
   name: "Dr. Sarah Mitchell",
+};
+
+const PATIENT_CREDENTIALS = {
+  email: "patient@medily.com",
+  password: "patient123",
+  role: "patient",
+  name: "Alex Johnson",
+};
+
+const PHARMACIST_CREDENTIALS = {
+  email: "pharmacy@medily.com",
+  password: "pharmacy123",
+  role: "pharmacist",
+  name: "MedPlus Pharmacy",
 };
 
 const Login: React.FC = () => {
@@ -17,7 +31,7 @@ const Login: React.FC = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -25,41 +39,75 @@ const Login: React.FC = () => {
     setError("");
     setIsLoading(true);
 
-    // Simulate a brief loading state
-    await new Promise(resolve => setTimeout(resolve, 800));
+    await new Promise((resolve) => setTimeout(resolve, 800));
 
-    // Check if credentials match doctor account
     if (
       email === DOCTOR_CREDENTIALS.email &&
       password === DOCTOR_CREDENTIALS.password
     ) {
-      // Store user info in localStorage (or use state management solution)
       const userData = {
         email: DOCTOR_CREDENTIALS.email,
         role: DOCTOR_CREDENTIALS.role,
         name: DOCTOR_CREDENTIALS.name,
         isAuthenticated: true,
       };
-      
       localStorage.setItem("user", JSON.stringify(userData));
-      
-      if (rememberMe) {
-        localStorage.setItem("rememberMe", "true");
-      }
-
-      console.log("✅ Doctor logged in successfully:", userData);
-      
-      // Redirect to doctor dashboard
+      if (rememberMe) localStorage.setItem("rememberMe", "true");
       navigate("/doctordashboard");
+    } else if (
+      email === PATIENT_CREDENTIALS.email &&
+      password === PATIENT_CREDENTIALS.password
+    ) {
+      const userData = {
+        email: PATIENT_CREDENTIALS.email,
+        role: PATIENT_CREDENTIALS.role,
+        name: PATIENT_CREDENTIALS.name,
+        isAuthenticated: true,
+      };
+      localStorage.setItem("user", JSON.stringify(userData));
+      if (rememberMe) localStorage.setItem("rememberMe", "true");
+      navigate("/patientdashboard");
+    } else if (
+      email === PHARMACIST_CREDENTIALS.email &&
+      password === PHARMACIST_CREDENTIALS.password
+    ) {
+      const userData = {
+        email: PHARMACIST_CREDENTIALS.email,
+        role: PHARMACIST_CREDENTIALS.role,
+        name: PHARMACIST_CREDENTIALS.name,
+        isAuthenticated: true,
+      };
+      localStorage.setItem("user", JSON.stringify(userData));
+      if (rememberMe) localStorage.setItem("rememberMe", "true");
+      navigate("/pharmacydashboard");
     } else {
-      setError("Invalid email or password. Use: doctor@medily.com / doctor123");
+      setError("Invalid email or password. Use the demo credentials below.");
       setIsLoading(false);
     }
   };
 
+  // Quick-fill helpers
+  const fillDoctor = () => {
+    setEmail(DOCTOR_CREDENTIALS.email);
+    setPassword(DOCTOR_CREDENTIALS.password);
+    setError("");
+  };
+
+  const fillPatient = () => {
+    setEmail(PATIENT_CREDENTIALS.email);
+    setPassword(PATIENT_CREDENTIALS.password);
+    setError("");
+  };
+
+  const fillPharmacist = () => {
+    setEmail(PHARMACIST_CREDENTIALS.email);
+    setPassword(PHARMACIST_CREDENTIALS.password);
+    setError("");
+  };
+
   return (
     <div className="login-page">
-      {/* Illustration / Value Prop Side – NOW ON LEFT */}
+      {/* ── Value Prop Side (Left) ── */}
       <div className="value-prop-side">
         <div className="value-content">
           <h2>Your health, simplified</h2>
@@ -87,24 +135,73 @@ const Login: React.FC = () => {
               <span className="icon">🔐</span>
               <div>
                 <h4>Bank-grade Security</h4>
-                <p>HIPAA compliant & encrypted</p>
+                <p>HIPAA compliant &amp; encrypted</p>
               </div>
             </div>
           </div>
 
-          {/* Demo Credentials Display */}
+          {/* ── Demo Credentials ── */}
           <div className="demo-credentials">
-            <div className="demo-badge">Demo Account</div>
-            <div className="demo-info">
-              <strong>Doctor Login:</strong>
-              <div>📧 doctor@medily.com</div>
-              <div>🔑 doctor123</div>
-            </div>
+            <div className="demo-badge">Demo Accounts</div>
+
+            {/* Doctor */}
+            <button
+              type="button"
+              className="demo-card"
+              onClick={fillDoctor}
+              title="Click to auto-fill"
+            >
+              <div className="demo-card-header">
+                <span className="demo-role-icon">🩺</span>
+                <span className="demo-role-label">Doctor</span>
+                <span className="demo-autofill-hint">Click to fill →</span>
+              </div>
+              <div className="demo-info">
+                <div>📧 doctor@medily.com</div>
+                <div>🔑 doctor123</div>
+              </div>
+            </button>
+
+            {/* Patient */}
+            <button
+              type="button"
+              className="demo-card"
+              onClick={fillPatient}
+              title="Click to auto-fill"
+            >
+              <div className="demo-card-header">
+                <span className="demo-role-icon">🧑‍💼</span>
+                <span className="demo-role-label">Patient</span>
+                <span className="demo-autofill-hint">Click to fill →</span>
+              </div>
+              <div className="demo-info">
+                <div>📧 patient@medily.com</div>
+                <div>🔑 patient123</div>
+              </div>
+            </button>
+
+            {/* Pharmacist */}
+            <button
+              type="button"
+              className="demo-card demo-card--pharmacy"
+              onClick={fillPharmacist}
+              title="Click to auto-fill"
+            >
+              <div className="demo-card-header">
+                <span className="demo-role-icon">💊</span>
+                <span className="demo-role-label">Pharmacist</span>
+                <span className="demo-autofill-hint">Click to fill →</span>
+              </div>
+              <div className="demo-info">
+                <div>📧 pharmacy@medily.com</div>
+                <div>🔑 pharmacy123</div>
+              </div>
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Form Side – NOW ON RIGHT */}
+      {/* ── Form Side (Right) ── */}
       <div className="login-form-side">
         <div className="form-container">
           <div className="logo">
@@ -119,10 +216,29 @@ const Login: React.FC = () => {
           <form onSubmit={handleSubmit} className="login-form">
             {error && (
               <div className="error-banner">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <circle cx="12" cy="12" r="10" strokeWidth="2"/>
-                  <line x1="12" y1="8" x2="12" y2="12" strokeWidth="2" strokeLinecap="round"/>
-                  <circle cx="12" cy="16" r="0.5" fill="currentColor" stroke="none"/>
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                >
+                  <circle cx="12" cy="12" r="10" strokeWidth="2" />
+                  <line
+                    x1="12"
+                    y1="8"
+                    x2="12"
+                    y2="12"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                  <circle
+                    cx="12"
+                    cy="16"
+                    r="0.5"
+                    fill="currentColor"
+                    stroke="none"
+                  />
                 </svg>
                 {error}
               </div>
@@ -181,14 +297,10 @@ const Login: React.FC = () => {
               </a>
             </div>
 
-            <button 
-              type="submit" 
-              className="primary-btn"
-              disabled={isLoading}
-            >
+            <button type="submit" className="primary-btn" disabled={isLoading}>
               {isLoading ? (
                 <>
-                  <span className="spinner"></span>
+                  <span className="spinner" />
                   Signing in...
                 </>
               ) : (
@@ -200,11 +312,7 @@ const Login: React.FC = () => {
               <span>or</span>
             </div>
 
-            <button 
-              type="button" 
-              className="google-btn"
-              disabled={isLoading}
-            >
+            <button type="button" className="google-btn" disabled={isLoading}>
               Continue with Google
             </button>
 

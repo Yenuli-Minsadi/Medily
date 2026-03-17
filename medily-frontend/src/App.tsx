@@ -4,6 +4,8 @@ import LoginPage from "./pages/LoginPage";
 import SignUp from "./pages/SignUp";
 import "./App.css";
 import DoctorDashboard from "./pages/DoctorDashboard";
+import PatientDashboard from "./pages/PatientDashboard";
+import PharmacyDashboard from "./pages/PharmacyDashboard";
 
 function App() {
   return (
@@ -15,6 +17,8 @@ function App() {
         <Route path="/signup" element={<SignUp />} />
 
         <Route path="/doctordashboard" element={<DoctorDashboard />} />
+        <Route path="/patientdashboard" element={<PatientDashboard />} />
+        <Route path="/pharmacydashboard" element={<PharmacyDashboard />} />
         {/* <Route path="/dashboard" element={<DoctorMedicalFeed />} /> */}
       </Routes>
     </Router>
