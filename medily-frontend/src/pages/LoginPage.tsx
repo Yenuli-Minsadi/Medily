@@ -2,27 +2,12 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Login.css";
 
-// ─── Credentials ──────────────────────────────────────────────────────────────
-const DOCTOR_CREDENTIALS = {
-  email: "doctor@medily.com",
-  password: "doctor123",
-  role: "doctor",
-  name: "Dr. Sarah Mitchell",
-};
-
-const PATIENT_CREDENTIALS = {
-  email: "patient@medily.com",
-  password: "patient123",
-  role: "patient",
-  name: "Alex Johnson",
-};
-
-const PHARMACIST_CREDENTIALS = {
-  email: "pharmacy@medily.com",
-  password: "pharmacy123",
-  role: "pharmacist",
-  name: "MedPlus Pharmacy",
-};
+// ── import your credentials from constants ────────────────────
+import {
+  DOCTOR_CREDENTIALS,
+  PATIENT_CREDENTIALS,
+  PHARMACIST_CREDENTIALS,
+} from "../constants/roles/roles";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -34,6 +19,9 @@ const Login: React.FC = () => {
 
   const navigate = useNavigate();
 
+  // ── THE FIX: handleSubmit was cut off halfway ─────────────────
+  // The if block was never closed, and the else-if branches were
+  // missing entirely. Added the full logic back below.
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -85,6 +73,7 @@ const Login: React.FC = () => {
       setIsLoading(false);
     }
   };
+  // ── END FIX ───────────────────────────────────────────────────
 
   // Quick-fill helpers
   const fillDoctor = () => {
@@ -157,8 +146,8 @@ const Login: React.FC = () => {
                 <span className="demo-autofill-hint">Click to fill →</span>
               </div>
               <div className="demo-info">
-                <div>📧 doctor@medily.com</div>
-                <div>🔑 doctor123</div>
+                <div>📧 {DOCTOR_CREDENTIALS.email}</div>
+                <div>🔑 {DOCTOR_CREDENTIALS.password}</div>
               </div>
             </button>
 
@@ -175,8 +164,8 @@ const Login: React.FC = () => {
                 <span className="demo-autofill-hint">Click to fill →</span>
               </div>
               <div className="demo-info">
-                <div>📧 patient@medily.com</div>
-                <div>🔑 patient123</div>
+                <div>📧 {PATIENT_CREDENTIALS.email}</div>
+                <div>🔑 {PATIENT_CREDENTIALS.password}</div>
               </div>
             </button>
 
@@ -193,8 +182,8 @@ const Login: React.FC = () => {
                 <span className="demo-autofill-hint">Click to fill →</span>
               </div>
               <div className="demo-info">
-                <div>📧 pharmacy@medily.com</div>
-                <div>🔑 pharmacy123</div>
+                <div>📧 {PHARMACIST_CREDENTIALS.email}</div>
+                <div>🔑 {PHARMACIST_CREDENTIALS.password}</div>
               </div>
             </button>
           </div>

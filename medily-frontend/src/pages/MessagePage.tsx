@@ -9,40 +9,6 @@ import {
   MessageSquare,
 } from "lucide-react";
 
-// --- Types ---
-interface Message {
-  id: string;
-  text: string;
-  sender: "doctor" | "patient";
-  time: string;
-}
-
-interface Patient {
-  id: string;
-  name: string;
-  lastMsg: string;
-  status: "online" | "offline";
-  initials: string;
-}
-
-// --- Mock Data ---
-const MOCK_PATIENTS: Patient[] = [
-  {
-    id: "1",
-    name: "John Doe",
-    lastMsg: "Is the prescription ready?",
-    status: "online",
-    initials: "JD",
-  },
-  {
-    id: "2",
-    name: "Sarah Smith",
-    lastMsg: "Thank you, doctor!",
-    status: "offline",
-    initials: "SS",
-  },
-];
-
 const MessagesPage: React.FC = () => {
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);

@@ -15,41 +15,7 @@ import {
 import "./DoctorProfile.css";
 
 const DoctorProfile: React.FC = () => {
-  // Mock data — in real app this comes from API / route params
-  const doctor = {
-    name: "Dr. Tanuja Perera",
-    photo:
-      "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=800&auto=format&fit=crop&q=80",
-    title: "Consultant Cardiologist",
-    specialty: "Cardiology & Interventional Cardiology",
-    experienceYears: 14,
-    qualifications: [
-      "MBBS – University of Colombo",
-      "MD (Medicine) – Postgraduate Institute of Medicine",
-      "MRCP (UK)",
-      "Fellowship in Interventional Cardiology – Singapore",
-    ],
-    languages: ["English", "Sinhala", "Tamil"],
-    hospital: "Nawaloka Hospital",
-    location: "Colombo 03, Sri Lanka",
-    availability: "Mon–Fri: 8:30 AM – 1:00 PM | 4:00 PM – 7:30 PM",
-    rating: 4.9,
-    reviewCount: 128,
-    about: `Dr. Tanuja Perera is a highly regarded cardiologist with over 14 years of experience in diagnosing and treating complex cardiovascular conditions. She specializes in interventional procedures including coronary angiography, angioplasty, and stenting.
-
-She is known for her patient-centered approach, clear communication, and dedication to preventive cardiology. Dr. Perera regularly participates in local and international cardiology conferences and has contributed to several research publications on hypertension and coronary artery disease management.`,
-    achievements: [
-      "Best Outgoing Student – Postgraduate MD Medicine 2015",
-      "Gold Medal – Sri Lanka College of Cardiology Annual Sessions 2020",
-      "Member – European Society of Cardiology",
-    ],
-    contact: {
-      phone: "+94 11 255 6789",
-      email: "dr.tanuja@medily.lk",
-      website: "www.medily.lk/doctors/tanuja-perera",
-    },
-  };
-
+  
   return (
     <div className="doctor-profile-page">
       {/* Hero / Header */}

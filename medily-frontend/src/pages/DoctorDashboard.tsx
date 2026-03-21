@@ -1,86 +1,26 @@
 // pages/DoctorDashboard.tsx — Tailwind CSS, persistent collapsible sidebar
-import React, { useEffect, useState, useRef } from "react";
+// pages/DoctorDashboard.tsx
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-interface UserData {
-  email: string;
-  role: string;
-  name: string;
-  isAuthenticated: boolean;
-}
-
-type MenuItem =
-  | "overview"
-  | "feed"
-  | "saved"
-  | "appointments"
-  | "patients"
-  | "prescriptions"
-  | "messages"
-  | "analytics";
-
-interface FeedPost {
-  id: number;
-  author: { name: string; specialty: string; avatar: string; verified: boolean };
-  time: string;
-  category: string;
-  categoryColor: string;
-  content: string;
-  image?: string;
-  imageHeight?: number;
-  tags: string[];
-  likes: number;
-  comments: number;
-  shares: number;
-  views: string;
-  liked: boolean;
-  bookmarked: boolean;
-  accentColor: string;
-}
-
-// ─── Consultation Types ───────────────────────────────────────────────────────
-type ConsultStep = "idle" | "enter_id" | "active" | "end_prompt" | "prescribe" | "done";
-
-interface ConsultSession {
-  patientId: string;
-  patientName: string;
-  startTime: number;
-  elapsed: number;
-  prescriptionIssued: boolean | null;
-}
-
-// ─── Patient DB (mock) ────────────────────────────────────────────────────────
-const PATIENT_DB: Record<string, string> = {
-  "PAT-2025-4821": "Alex Johnson",
-  "PAT-2025-1234": "Sarah Williams",
-  "PAT-2025-5678": "John Anderson",
-  "PAT-2025-9012": "Michael Chen",
-  "PAT-2025-3456": "Emma Johnson",
-};
-
-// ─── Feed Data ────────────────────────────────────────────────────────────────
-const FEED_CATEGORIES = ["All","Research","Case Studies","Guidelines","Pharmacology","Surgery","Mental Health"];
-const TRENDING_TOPICS = [
-  { tag: "CardiacArrest", count: "2.4k" },
-  { tag: "AI_Diagnostics", count: "1.8k" },
-  { tag: "NeurologyUpdate", count: "1.2k" },
-  { tag: "COVID_Research", count: "987" },
-  { tag: "PediatricCare", count: "743" },
-];
-const SUGGESTED_DOCTORS = [
-  { name: "Dr. Sarah Chen", specialty: "Cardiologist", avatar: "https://ui-avatars.com/api/?name=Sarah+Chen&background=3b82f6&color=fff", verified: true },
-  { name: "Dr. James Okafor", specialty: "Neurologist", avatar: "https://ui-avatars.com/api/?name=James+Okafor&background=7c3aed&color=fff", verified: true },
-  { name: "Dr. Priya Sharma", specialty: "Oncologist", avatar: "https://ui-avatars.com/api/?name=Priya+Sharma&background=059669&color=fff", verified: false },
-];
-const INITIAL_POSTS: FeedPost[] = [
-  { id:1, author:{name:"Dr. Emily Watson",specialty:"Cardiology · UCSF",avatar:"https://ui-avatars.com/api/?name=Emily+Watson&background=ef4444&color=fff",verified:true}, time:"2h ago", category:"Research", categoryColor:"#dbeafe|#1d4ed8", content:"Exciting breakthrough: patients receiving early PCSK9 inhibitor therapy showed a 43% reduction in major cardiovascular events over 24 months. LDL-C reduced from 142 mg/dL to 58 mg/dL within 12 weeks.", image:"https://images.unsplash.com/photo-1628348068343-c6a848d2b6dd?w=600&q=80", imageHeight:200, tags:["Cardiology","PCSK9","ClinicalTrial"], likes:284, comments:47, shares:93, views:"4.2k", liked:false, bookmarked:false, accentColor:"#fef2f2" },
-  { id:2, author:{name:"Dr. Marcus Reid",specialty:"Emergency · Hopkins",avatar:"https://ui-avatars.com/api/?name=Marcus+Reid&background=f59e0b&color=fff",verified:true}, time:"4h ago", category:"Case Studies", categoryColor:"#fef3c7|#d97706", content:"34yo female presenting with acute confusion, fever, and new-onset seizures. LP showed lymphocytic pleocytosis. Anti-NMDA receptor antibodies strongly positive.\n\nAutoimmune encephalitis is still underdiagnosed.", tags:["Neurology","AutoimmuneEncephalitis"], likes:156, comments:89, shares:42, views:"2.8k", liked:true, bookmarked:true, accentColor:"#fffbeb" },
-  { id:3, author:{name:"Dr. Aisha Mohammed",specialty:"Infectious Disease · WHO",avatar:"https://ui-avatars.com/api/?name=Aisha+Mohammed&background=10b981&color=fff",verified:true}, time:"6h ago", category:"Guidelines", categoryColor:"#dcfce7|#15803d", content:"Updated WHO antimicrobial stewardship guidance is out. New framework mandates culture-directed therapy over empirical broad-spectrum coverage and de-escalation reviews at 72h.", image:"https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&q=80", imageHeight:160, tags:["AntimicrobialStewardship","WHO"], likes:412, comments:63, shares:187, views:"8.9k", liked:false, bookmarked:false, accentColor:"#f0fdf4" },
-  { id:4, author:{name:"Dr. Kevin Park",specialty:"Radiology · Mayo Clinic",avatar:"https://ui-avatars.com/api/?name=Kevin+Park&background=6366f1&color=fff",verified:false}, time:"9h ago", category:"Research", categoryColor:"#dbeafe|#1d4ed8", content:"AI-assisted mammography hit a milestone — 31% improvement in early-stage detection with 18% fewer false positives. Hybrid human-AI workflow, not full automation.", image:"https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=600&q=80", imageHeight:240, tags:["AI","Radiology","MachineLearning"], likes:521, comments:74, shares:203, views:"11.3k", liked:false, bookmarked:false, accentColor:"#eef2ff" },
-  { id:5, author:{name:"Dr. Lena Fischer",specialty:"Psychiatry · Berlin Charité",avatar:"https://ui-avatars.com/api/?name=Lena+Fischer&background=ec4899&color=fff",verified:true}, time:"12h ago", category:"Mental Health", categoryColor:"#fce7f3|#be185d", content:"New RCT data on ketamine-assisted therapy for treatment-resistant depression: 68% response rate at 4 weeks vs 24% for standard SSRI augmentation.", tags:["Depression","Ketamine","Psychiatry","RCT"], likes:339, comments:112, shares:88, views:"6.1k", liked:false, bookmarked:false, accentColor:"#fdf4ff" },
-  { id:6, author:{name:"Dr. Yuki Tanaka",specialty:"Pharmacology · Tokyo Medical",avatar:"https://ui-avatars.com/api/?name=Yuki+Tanaka&background=8b5cf6&color=fff",verified:false}, time:"1d ago", category:"Pharmacology", categoryColor:"#ede9fe|#6d28d9", content:"GLP-1 agonists beyond diabetes: cardiorenal protection, NASH improvement, and now potential neuroprotective effects in early trials. Are we looking at the next era of preventive medicine?", tags:["GLP1","Pharmacology","Semaglutide"], likes:607, comments:134, shares:241, views:"14.2k", liked:true, bookmarked:false, accentColor:"#f5f3ff" },
-];
+import { PATIENT_DB } from "../constants/data/mockPatients";
+import {
+  INITIAL_POSTS,
+  FEED_CATEGORIES,
+  TRENDING_TOPICS,
+  SUGGESTED_DOCTORS,
+} from "../constants/data/mockFeed";
+import {
+  DOCTOR_NAV_ITEMS as NAV_ITEMS,
+  DOCTOR_PAGE_TITLES as pageTitles,
+} from "../constants/menu/sidebarMenu";
+import { useMasonryColumns } from "../hooks/useMasonryColumns";
+import type {
+  DoctorMenuItem as MenuItem,
+  ConsultStep,
+  ConsultSession,
+  UserData,
+  FeedPost,           // ← just FeedPost now, no alias needed
+} from "../types";
 
 // ─── Consultation Modal ───────────────────────────────────────────────────────
 interface ConsultModalProps {
@@ -533,19 +473,6 @@ const PrescriptionForm: React.FC<PrescriptionFormProps> = ({ prefillPatientId, p
   );
 };
 
-// ─── Masonry ──────────────────────────────────────────────────────────────────
-function useMasonryColumns(containerRef: React.RefObject<HTMLDivElement>, colWidth = 260, gap = 14): number {
-  const [cols, setCols] = useState(3);
-  useEffect(() => {
-    const update = () => { if (containerRef.current) { const w = containerRef.current.offsetWidth; setCols(Math.max(1, Math.floor((w + gap) / (colWidth + gap)))); } };
-    update();
-    const ro = new ResizeObserver(update);
-    if (containerRef.current) ro.observe(containerRef.current);
-    return () => ro.disconnect();
-  }, [containerRef, colWidth, gap]);
-  return cols;
-}
-
 const MasonryGrid: React.FC<{ children: React.ReactNode[]; gap?: number }> = ({ children, gap = 14 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const cols = useMasonryColumns(containerRef, 260, gap);
@@ -712,18 +639,6 @@ const FeedPage: React.FC = () => {
   );
 };
 
-// ─── Nav items config ─────────────────────────────────────────────────────────
-const NAV_ITEMS: { id: MenuItem; label: string; badge?: number; icon: React.ReactNode }[] = [
-  { id:"overview", label:"Overview", icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg> },
-  { id:"feed", label:"Medical Feed", icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 22h16a2 2 0 002-2V4a2 2 0 00-2-2H8a2 2 0 00-2 2v2"/><path d="M2 10h12M2 14h8M2 6h4"/></svg> },
-  { id:"saved", label:"Saved", icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg> },
-  { id:"appointments", label:"Appointments", badge:3, icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> },
-  { id:"patients", label:"Patients", icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg> },
-  { id:"prescriptions", label:"Prescriptions", icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> },
-  { id:"messages", label:"Messages", badge:5, icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> },
-  { id:"analytics", label:"Analytics", icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg> },
-];
-
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 const DoctorDashboard: React.FC = () => {
   const [user, setUser] = useState<UserData | null>(null);
@@ -733,18 +648,6 @@ const DoctorDashboard: React.FC = () => {
   const [showConsult, setShowConsult] = useState(false);
   const [rxPrefill, setRxPrefill] = useState<{ patientId: string; patientName: string } | null>(null);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const userStr = localStorage.getItem("user");
-    if (userStr) setUser(JSON.parse(userStr));
-  }, []);
-
-  const handleLogout = () => { localStorage.removeItem("user"); localStorage.removeItem("rememberMe"); navigate("/login"); };
-  const handleMenuClick = (id: MenuItem) => setActiveMenu(id);
-  const handleGoToPrescriptions = (patientId: string, patientName: string) => {
-    setRxPrefill({ patientId, patientName });
-    setActiveMenu("prescriptions");
-  };
 
   const pageTitles: Record<MenuItem, { title: string; subtitle: string }> = {
     overview: { title:"Dr. Sarah Mitchell", subtitle:"Cardiologist" },

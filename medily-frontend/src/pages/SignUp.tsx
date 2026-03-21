@@ -1,39 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-interface FormData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  userType: string;
-  password: string;
-  confirmPassword: string;
-  terms: boolean;
-}
-
-interface FormErrors {
-  [key: string]: string;
-}
-
-const roleOptions = [
-  {
-    value: "patient",
-    label: "Patient",
-    description: "Manage your health records & appointments",
-  },
-  {
-    value: "doctor",
-    label: "Doctor",
-    description: "Access patient records & manage consultations",
-  },
-  {
-    value: "hospital",
-    label: "Hospital / Clinic",
-    description: "Coordinate staff, patients & operations",
-  },
-];
-
 const RoleIcon = ({ value, selected }: { value: string; selected: boolean }) => {
   const color = selected ? "white" : "#7bc5d3";
   if (value === "patient")
