@@ -19,9 +19,7 @@ const Login: React.FC = () => {
 
   const navigate = useNavigate();
 
-  // ── THE FIX: handleSubmit was cut off halfway ─────────────────
-  // The if block was never closed, and the else-if branches were
-  // missing entirely. Added the full logic back below.
+  // User handler
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
