@@ -19,7 +19,13 @@ import type {
   DoctorMenuItem,
   PatientMenuItem,
   PharmacyMenuItem,
-} from "../../types";
+} from "../../types/Ui";
+export type {
+  DoctorMenuItem,
+  PatientMenuItem,
+  PharmacyMenuItem,
+} from "../../types/Ui";
+
 
 // ─── Doctor Dashboard Nav Items ─────────────────────────────────────────────────
 export const DOCTOR_NAV_ITEMS: {

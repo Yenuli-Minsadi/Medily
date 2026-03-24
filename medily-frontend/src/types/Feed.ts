@@ -30,6 +30,7 @@ export interface FeedPost {
     avatar: string;
     verified: boolean;
   };
+  // avatar: string;
   time: string;
   category: string;
   categoryColor: string;

@@ -1,5 +1,31 @@
 // PharmacistDashboard.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState} from "react";
+import type {
+  PharmacyPrescription,
+  StatusConfig,
+  PrescriptionStatus,
+  NearbyPatient,
+} from "../types";
+type Prescription = PharmacyPrescription;
+import { NEARBY_PATIENTS } from "../constants/data/mockDoctors";
+import { INVENTORY } from "../constants/data/mockInventory";
+import { PHARMACY_PRESCRIPTIONS as PRESCRIPTIONS } from "../constants/data/mockPrescriptions";
+import { menuItems } from "../constants/data/mockPharmacies";
+import type { MenuItem } from "../constants/data/mockPharmacies";
+
+const statusConfig: Record<PrescriptionStatus, StatusConfig> = {
+  pending:   { label: "Pending",   classes: "bg-amber-100 text-amber-700",   dot: "bg-amber-400"  },
+  accepted:  { label: "Accepted",  classes: "bg-teal-100 text-teal-700",     dot: "bg-teal-400"   },
+  dispensed: { label: "Dispensed", classes: "bg-slate-100 text-slate-600",   dot: "bg-slate-400"  },
+  rejected:  { label: "Rejected",  classes: "bg-red-100 text-red-600",       dot: "bg-red-400"    },
+};
+
+const nearbyStatusConfig: Record<string, StatusConfig> = {
+  searching: { label: "Searching", classes: "bg-sky-100 text-sky-700",       dot: "bg-sky-400"    },
+  matched:   { label: "Matched",   classes: "bg-teal-100 text-teal-700",     dot: "bg-teal-400"   },
+  enroute:   { label: "En Route",  classes: "bg-violet-100 text-violet-700", dot: "bg-violet-400" },
+};
+
 
 // ─── Icons ─────────────────────────────────────────────────────────────────────
 const Icon = {
@@ -291,7 +317,7 @@ const Icon = {
 
 // ─── Prescription Detail Modal ──────────────────────────────────────────────────
 const PrescriptionModal: React.FC<{
-  rx: Prescription;
+  rx: PharmacyPrescription;
   onClose: () => void;
   onAccept: (id: string) => void;
   onReject: (id: string) => void;

@@ -52,3 +52,21 @@ export const PHARMACIES: Pharmacy[] = [
     matchScore: 40,
   },
 ];
+
+export type MenuItem = "overview" | "prescriptions" | "nearby" | "inventory" | "patients" | "orders" | "analytics" | "settings";
+
+export const menuItems: {
+  id: MenuItem;
+  label: string;
+  icon: string;
+  badge?: number;
+}[] = [
+  { id: "overview", label: "Overview", icon: "🏠" },
+  { id: "prescriptions", label: "Prescriptions", icon: "📋" },
+  { id: "nearby", label: "Nearby", icon: "📍" },
+  { id: "inventory", label: "Inventory", icon: "📦" },
+  { id: "patients", label: "Patients", icon: "👥" },
+  { id: "orders", label: "Orders", icon: "🛒" },
+  { id: "analytics", label: "Analytics", icon: "📊" },
+  { id: "settings", label: "Settings", icon: "⚙️" },
+];

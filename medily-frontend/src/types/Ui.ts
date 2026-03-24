@@ -20,7 +20,7 @@ export type PatientMenuItem =
   | "payments"
   | "messages";
 
-export type PharmacistMenuItem =
+export type PharmacyMenuItem =
   | "overview"
   | "prescriptions"
   | "nearby"

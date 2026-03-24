@@ -2,7 +2,21 @@
 // Full Patient Dashboard with: Medical Feed, Prescriptions, Appointments, Pharmacy Finder, Stripe Payments
 // Built with Tailwind CSS
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useState } from "react";
+import {
+  PATIENT_PRESCRIPTIONS as PRESCRIPTIONS,
+  ALL_PRESCRIBED_MEDS,
+} from "../constants/data/mockPrescriptions";
+import { APPOINTMENTS } from "../constants/data/mockAppointments";
+import { AVAILABLE_DOCTORS } from "../constants/data/mockDoctors";
+import { PHARMACIES } from "../constants/data/mockPharmacies";
+import { INITIAL_POSTS as FEED_POSTS } from "../constants/data/mockFeed";
+import {
+  PATIENT_NAV_ITEMS as menuItems,
+  PATIENT_PAGE_TITLES as titles,
+} from "../constants/menu/sidebarMenu";
+import type { PatientMenuItem as MenuItem } from "../constants/menu/sidebarMenu";
+import type { FeedPost } from "../types";
 
 // ─── Stripe Modal ─────────────────────────────────────────────────────────────
 interface StripeModalProps {
@@ -1375,16 +1389,16 @@ const FeedPage: React.FC = () => {
             <div className="p-5">
               <div className="flex items-center gap-3 mb-3">
                 <img
-                  src={post.avatar}
+                  src={post.author.avatar}
                   alt=""
                   className="w-10 h-10 rounded-xl"
                 />
                 <div className="flex-1">
                   <div className="font-bold text-gray-900 text-sm">
-                    {post.author}
+                    {post.author.name}
                   </div>
                   <div className="text-gray-400 text-xs">
-                    {post.specialty} · {post.time}
+                    {post.author.specialty} · {post.time}
                   </div>
                 </div>
                 <span className="bg-indigo-50 text-indigo-600 text-xs font-bold px-2.5 py-1 rounded-full">
@@ -1649,7 +1663,11 @@ const PatientDashboard: React.FC = () => {
       case "feed":
         return <FeedPage />;
       case "saved":
-        return <Saved />;  
+        return (
+          <div className="text-center py-20 text-gray-400 font-semibold">
+            No saved items yet.
+          </div>
+        );
       case "prescriptions":
         return <PrescriptionsPage onPayPharmacy={openPay} />;
       case "appointments":
