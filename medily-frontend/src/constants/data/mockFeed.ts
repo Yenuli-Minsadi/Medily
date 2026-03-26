@@ -150,7 +150,7 @@ export const INITIAL_POSTS: FeedPost[] = [
   },
 ];
 
-// ─── Feed Data ────────────────────────────────────────────────────────────────
+// Feed Data
 export const FEED_CATEGORIES = [
   "All",
   "Research",

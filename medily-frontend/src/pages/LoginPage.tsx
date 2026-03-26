@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Login.css";
 
-// ── import your credentials from constants ────────────────────
+// import credentials from constants for now
 import {
   DOCTOR_CREDENTIALS,
   PATIENT_CREDENTIALS,
   PHARMACIST_CREDENTIALS,
+  ADMIN_CREDENTIALS,
 } from "../constants/roles/roles";
 
 const Login: React.FC = () => {
@@ -66,12 +67,24 @@ const Login: React.FC = () => {
       localStorage.setItem("user", JSON.stringify(userData));
       if (rememberMe) localStorage.setItem("rememberMe", "true");
       navigate("/pharmacydashboard");
+    } else if (
+      email === ADMIN_CREDENTIALS.email &&
+      password === ADMIN_CREDENTIALS.password
+    ) {
+        const userData = {
+          email: ADMIN_CREDENTIALS.email,
+          role: ADMIN_CREDENTIALS.role,
+          name: ADMIN_CREDENTIALS.name,
+          isAuthenticated: true,
+        };
+        localStorage.setItem("user", JSON.stringify(userData));
+        if (rememberMe) localStorage.setItem("rememberMe", "true");
+        navigate("/admindashboard");
     } else {
       setError("Invalid email or password. Use the demo credentials below.");
       setIsLoading(false);
     }
   };
-  // ── END FIX ───────────────────────────────────────────────────
 
   // Quick-fill helpers
   const fillDoctor = () => {
@@ -92,9 +105,15 @@ const Login: React.FC = () => {
     setError("");
   };
 
+  const fillAdmin = () => {
+    setEmail(ADMIN_CREDENTIALS.email);
+    setPassword(ADMIN_CREDENTIALS.password);
+    setError("");
+  };
+
   return (
     <div className="login-page">
-      {/* ── Value Prop Side (Left) ── */}
+      {/* Value Prop Side (Left) */}
       <div className="value-prop-side">
         <div className="value-content">
           <h2>Your health, simplified</h2>
@@ -127,7 +146,7 @@ const Login: React.FC = () => {
             </div>
           </div>
 
-          {/* ── Demo Credentials ── */}
+          {/* Demo Credentials */}
           <div className="demo-credentials">
             <div className="demo-badge">Demo Accounts</div>
 
@@ -184,11 +203,29 @@ const Login: React.FC = () => {
                 <div>🔑 {PHARMACIST_CREDENTIALS.password}</div>
               </div>
             </button>
+
+            {/* Admin */}
+            <button
+                type="button"
+                className="demo-card demo-card--admin"
+                onClick={fillAdmin}
+                title="Click to auto-fill"
+            >
+              <div className="demo-card-header">
+                <span className="demo-role-icon">*</span>
+                <span className="demo-role-label">Admin</span>
+                <span className="demo-autofill-hint">Click to fill →</span>
+              </div>
+              <div className="demo-info">
+                <div>📧 {ADMIN_CREDENTIALS.email}</div>
+                <div>🔑 {ADMIN_CREDENTIALS.password}</div>
+              </div>
+            </button>
           </div>
         </div>
       </div>
 
-      {/* ── Form Side (Right) ── */}
+      {/* Form Side (Right) */}
       <div className="login-form-side">
         <div className="form-container">
           <div className="logo">

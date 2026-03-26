@@ -1,6 +1,6 @@
 import type { Patient } from "../../types/Patient";
 //  From doctor dashboard
-// ─── Patient DB (mock) ────────────────────────────────────────────────────────
+//Patient DB (mock)
 export const PATIENT_DB: Record<string, string> = {
   "PAT-2025-4821": "Alex Johnson",
   "PAT-2025-1234": "Sarah Williams",

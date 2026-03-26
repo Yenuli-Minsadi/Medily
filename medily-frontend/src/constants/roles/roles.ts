@@ -40,3 +40,10 @@ export const PHARMACIST_CREDENTIALS = {
   name: "MedPlus Pharmacy",
 };
 
+export const ADMIN_CREDENTIALS = {
+  email: "admin@medily.com",
+  password: "admin123",
+  role: "admin",
+  name: "Admin",
+};
+

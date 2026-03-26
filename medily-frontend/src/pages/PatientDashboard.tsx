@@ -1,7 +1,5 @@
 // pages/PatientDashboard.tsx
 // Full Patient Dashboard with: Medical Feed, Prescriptions, Appointments, Pharmacy Finder, Stripe Payments
-// Built with Tailwind CSS
-
 import React, { useState } from "react";
 import {
   PATIENT_PRESCRIPTIONS as PRESCRIPTIONS,
@@ -18,7 +16,7 @@ import {
 import type { PatientMenuItem as MenuItem } from "../constants/menu/sidebarMenu";
 import type { FeedPost } from "../types";
 
-// ─── Stripe Modal ─────────────────────────────────────────────────────────────
+// Stripe Modal
 interface StripeModalProps {
   open: boolean;
   onClose: () => void;
@@ -258,7 +256,7 @@ const StripeModal: React.FC<StripeModalProps> = ({
   );
 };
 
-// ─── Overview Page ─────────────────────────────────────────────────────────────
+// Overview Page
 const OverviewPage: React.FC<{
   onNavigate: (m: MenuItem) => void;
   onPay: (amt: number, desc: string) => void;
@@ -934,7 +932,7 @@ const PharmacyPage: React.FC<{
 }> = ({ onPay }) => {
   const [search, setSearch] = useState("");
   const [selectedRx, setSelectedRx] = useState<string | null>(null);
-  const [orderPlaced, setOrderPlaced] = useState<string | null>(null);
+  // const [orderPlaced, setOrderPlaced] = useState<string | null>(null);
 
   const activePrescriptions = PRESCRIPTIONS.filter(
     (p) => p.status === "active",
@@ -1324,7 +1322,7 @@ const PaymentsPage: React.FC<{
   );
 };
 
-// ─── Feed Page ────────────────────────────────────────────────────────────────
+// Feed Page
 const FeedPage: React.FC = () => {
   const [posts, setPosts] = useState<FeedPost[]>(FEED_POSTS);
   const cats = [
@@ -1473,7 +1471,7 @@ const FeedPage: React.FC = () => {
   );
 };
 
-// ─── Messages Page ────────────────────────────────────────────────────────────
+// Messages Page
 const MessagesPage: React.FC = () => {
   const chats = [
     {
@@ -1637,7 +1635,7 @@ const MessagesPage: React.FC = () => {
   );
 };
 
-// ─── Main Patient Dashboard ────────────────────────────────────────────────────
+// Main Patient Dashboard
 const PatientDashboard: React.FC = () => {
   const [activeMenu, setActiveMenu] = useState<MenuItem>("overview");
   const [sidebarOpen, setSidebarOpen] = useState(false);

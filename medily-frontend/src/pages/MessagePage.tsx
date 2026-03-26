@@ -8,6 +8,8 @@ import {
   Video,
   MessageSquare,
 } from "lucide-react";
+import type {Message, Patient} from "../types";
+import {MOCK_PATIENTS} from "../constants/data/mockPatients.ts";
 
 const MessagesPage: React.FC = () => {
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
@@ -166,7 +168,7 @@ const MessagesPage: React.FC = () => {
             </form>
           </>
         ) : (
-          /* Empty State - Matched to your screenshot */
+          /* Empty State */
           <div className="flex-1 flex flex-col items-center justify-center p-8">
             <div className="w-full max-w-2xl aspect-[16/9] border-2 border-dashed border-slate-200 rounded-3xl flex flex-col items-center justify-center bg-white/50">
               <div className="p-4 bg-slate-50 rounded-2xl mb-4 border border-slate-100">

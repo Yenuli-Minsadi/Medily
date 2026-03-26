@@ -1,4 +1,3 @@
-// pages/DoctorDashboard.tsx — Tailwind CSS, persistent collapsible sidebar
 // pages/DoctorDashboard.tsx
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -19,10 +18,10 @@ import type {
   ConsultStep,
   ConsultSession,
   UserData,
-  FeedPost,           // ← just FeedPost now, no alias needed
+  FeedPost,
 } from "../types";
 
-// ─── Consultation Modal ───────────────────────────────────────────────────────
+// Consultation Modal
 interface ConsultModalProps {
   onClose: () => void;
   onGoToPrescriptions: (patientId: string, patientName: string) => void;
@@ -125,7 +124,7 @@ const ConsultationModal: React.FC<ConsultModalProps> = ({ onClose, onGoToPrescri
 
         <div className="p-6">
 
-          {/* ── Step: Enter Patient ID ── */}
+          {/* Step: Enter Patient ID */}
           {step === "enter_id" && (
             <div className="space-y-5">
               <div>
@@ -176,7 +175,7 @@ const ConsultationModal: React.FC<ConsultModalProps> = ({ onClose, onGoToPrescri
             </div>
           )}
 
-          {/* ── Step: Active Timer ── */}
+          {/* Step: Active Timer */}
           {step === "active" && session && (
             <div className="space-y-5">
               <div className="bg-gray-50 rounded-2xl p-4 flex items-center gap-4">
@@ -337,7 +336,7 @@ const ConsultationModal: React.FC<ConsultModalProps> = ({ onClose, onGoToPrescri
   );
 };
 
-//Prescription Form Page
+// Prescription Form Page
 interface PrescriptionFormProps {
   prefillPatientId?: string;
   prefillPatientName?: string;
@@ -641,7 +640,7 @@ const FeedPage: React.FC = () => {
   );
 };
 
-//Main Dashboard
+// Main Dashboard
 const DoctorDashboard: React.FC = () => {
   const [user, setUser] = useState<UserData | null>(null);
   const [activeMenu, setActiveMenu] = useState<MenuItem>("overview");
@@ -654,7 +653,7 @@ const DoctorDashboard: React.FC = () => {
   } | null>(null);
   const navigate = useNavigate();
 
-  //Read user from localStorag
+  // Read user from localStorage
   useEffect(() => {
     const userStr = localStorage.getItem("user");
     if (userStr) {
@@ -664,7 +663,7 @@ const DoctorDashboard: React.FC = () => {
     }
   }, []);
 
-  //Handlers
+  // Handlers
   const handleLogout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("rememberMe");

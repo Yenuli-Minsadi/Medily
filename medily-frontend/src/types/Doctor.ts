@@ -1,4 +1,4 @@
-import type { number } from "framer-motion";
+// import type { number } from "framer-motion";
 
 export type ConsultStep =
   | "idle"

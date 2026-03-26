@@ -6,6 +6,7 @@ import "./App.css";
 import DoctorDashboard from "./pages/DoctorDashboard";
 import PatientDashboard from "./pages/PatientDashboard";
 import PharmacyDashboard from "./pages/PharmacyDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/doctordashboard" element={<DoctorDashboard />} />
         <Route path="/patientdashboard" element={<PatientDashboard />} />
         <Route path="/pharmacydashboard" element={<PharmacyDashboard />} />
+        <Route path="/admindashboard" element={<AdminDashboard />} />
         {/* <Route path="/dashboard" element={<DoctorMedicalFeed />} /> */}
       </Routes>
     </Router>
