@@ -1320,10 +1320,10 @@ const PharmacistDashboard: React.FC = () => {
       prev.map((p) => (p.id === id ? { ...p, status: "rejected" } : p)),
     );
 
-  const pendingCount = prescriptions.filter(
-    (p) => p.status === "pending",
-  ).length;
-  const nearbyCount = nearby.filter((n) => n.status === "searching").length;
+  // const pendingCount = prescriptions.filter(
+  //   (p) => p.status === "pending",
+  // ).length;
+  // const nearbyCount = nearby.filter((n) => n.status === "searching").length;
 
   const renderContent = () => {
     switch (activeMenu) {
