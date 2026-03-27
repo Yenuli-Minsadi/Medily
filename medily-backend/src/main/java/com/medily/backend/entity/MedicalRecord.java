@@ -7,28 +7,32 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "notification")
+@Table(name = "medical_record")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Notification {
+public class MedicalRecord {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "notification_id")
-    private Integer notificationId;
+    @Column(name = "record_id")
+    private Integer recordId;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "patient_id")
+    private Patient patient;
 
-    @Column(name = "message", columnDefinition = "TEXT")
-    private String message;
+    @ManyToOne
+    @JoinColumn(name = "doctor_id")
+    private Doctor doctor;
 
-    @Column(name = "is_read")
-    private Boolean isRead = false;
+    @Column(name = "diagnosis", columnDefinition = "TEXT")
+    private String diagnosis;
+
+    @Column(name = "notes", columnDefinition = "TEXT")
+    private String notes;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

@@ -4,18 +4,18 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "pharmacy")
+@Table(name = "clinic")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Pharmacy {
+public class Clinic {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "pharmacy_id")
-    private Integer pharmacyId;
+    @Column(name = "clinic_id")
+    private Integer clinicId;
 
     @Column(name = "name", length = 100)
     private String name;
@@ -25,8 +25,4 @@ public class Pharmacy {
 
     @Column(name = "contact_number", length = 10)
     private String contactNumber;
-
-    @OneToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
 }

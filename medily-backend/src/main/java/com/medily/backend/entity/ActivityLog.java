@@ -7,30 +7,27 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "notification")
+@Table(name = "activity_log")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Notification {
+public class ActivityLog {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "notification_id")
-    private Integer notificationId;
+    @Column(name = "log_id")
+    private Integer logId;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(name = "message", columnDefinition = "TEXT")
-    private String message;
-
-    @Column(name = "is_read")
-    private Boolean isRead = false;
+    @Column(name = "action", length = 255)
+    private String action;
 
     @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
+    @Column(name = "timestamp", updatable = false)
+    private LocalDateTime timestamp;
 }
