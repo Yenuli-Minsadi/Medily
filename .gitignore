@@ -1,0 +1,12 @@
+# IDE
+.idea/
+*.iml
+
+# Backend
+medily-backend/target/
+
+# Root
+node_modules/
+
+# Env files
+.env
