@@ -20,8 +20,8 @@ public class Pharmacy {
     @Column(name = "name", length = 100)
     private String name;
 
-    @Column(name = "location", length = 255)
-    private String location;
+    @Column(name = "city", length = 255)
+    private String city;
 
     @Column(name = "contact_number", length = 10)
     private String contactNumber;

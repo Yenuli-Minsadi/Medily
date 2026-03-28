@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface PostAudienceRepository extends JpaRepository<PostAudience, Long> {
-    List<PostAudience> findByPostId(Long postId);
+    List<PostAudience> findByPostPostId(Long postId);
 }

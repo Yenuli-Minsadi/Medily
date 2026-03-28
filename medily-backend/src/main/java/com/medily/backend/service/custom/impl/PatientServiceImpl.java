@@ -29,7 +29,7 @@ public class PatientServiceImpl implements PatientService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         // Find existing patient or create new one
-        Patient patient = patientRepository.findByUserId(userId)
+        Patient patient = patientRepository.findByUserUserId(userId)
                 .orElseGet(() -> {
                     Patient p = new Patient();
                     p.setUser(user);
@@ -49,7 +49,7 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public PatientResponseDTO getPatientByUserId(Long userId) {
-        Patient patient = patientRepository.findByUserId(userId)
+        Patient patient = patientRepository.findByUserUserId(userId)
                 .orElseThrow(() -> new RuntimeException("Patient profile not found"));
         return mapToResponse(patient);
     }

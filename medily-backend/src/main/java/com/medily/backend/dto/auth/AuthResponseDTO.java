@@ -9,5 +9,5 @@ public class AuthResponseDTO {
     private String token;
     private String role;
     private String name;
-    private Long userId;
+    private Integer userId;
 }

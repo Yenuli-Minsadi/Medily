@@ -21,7 +21,7 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
 
     @Override
     public MedicalRecordResponseDTO createRecord(Long doctorUserId, MedicalRecordRequestDTO request) {
-        Doctor doctor = doctorRepository.findByUserId(doctorUserId)
+        Doctor doctor = doctorRepository.findByUserUserId(doctorUserId)
                 .orElseThrow(() -> new RuntimeException("Doctor profile not found"));
 
         Patient patient = patientRepository.findById(request.getPatientId())
@@ -38,9 +38,9 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
 
     @Override
     public List<MedicalRecordResponseDTO> getRecordsByPatient(Long patientUserId) {
-        Patient patient = patientRepository.findByUserId(patientUserId)
+        Patient patient = patientRepository.findByUserUserId(patientUserId)
                 .orElseThrow(() -> new RuntimeException("Patient profile not found"));
-        return medicalRecordRepository.findByPatientId(Long.valueOf(patient.getPatientId()))
+        return medicalRecordRepository.findByPatientPatientId(patient.getPatientId())
                 .stream().map(this::mapToResponse).collect(Collectors.toList());
     }
 

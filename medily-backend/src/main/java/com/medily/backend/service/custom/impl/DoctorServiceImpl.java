@@ -45,7 +45,7 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Override
     public DoctorResponseDTO getDoctorByUserId(Long userId) {
-        Doctor doctor = doctorRepository.findByUserId(userId)
+        Doctor doctor = doctorRepository.findByUserUserId(userId)
                 .orElseThrow(() -> new RuntimeException("Doctor profile not found"));
         return mapToResponse(doctor);
     }
@@ -74,7 +74,7 @@ public class DoctorServiceImpl implements DoctorService {
         dto.setSpecialization(doctor.getSpecialization());
         dto.setQualifications(doctor.getLicenseNumber());
         dto.setClinicName(doctor.getClinic().getName());
-        dto.setClinicCity(doctor.getClinic().getLocation());
+        dto.setClinicCity(doctor.getClinic().getCity());
         return dto;
     }
 }

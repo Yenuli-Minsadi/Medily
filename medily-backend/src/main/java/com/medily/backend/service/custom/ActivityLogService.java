@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface ActivityLogService {
     List<ActivityLogResponseDTO> getRecentLogs();
-    void log(Long userId, String action);
+    void log(Integer userId, String action);
 }

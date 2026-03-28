@@ -8,8 +8,8 @@ import java.util.List;
 
 @Repository
 public interface PrescriptionRequestRepository extends JpaRepository<PrescriptionRequest, Long> {
-    List<PrescriptionRequest> findByPatientId(Long patientId);
-    List<PrescriptionRequest> findByPharmacyId(Long pharmacyId);
-    List<PrescriptionRequest> findByPatientIdAndStatus(Long patientId, String status);
-    List<PrescriptionRequest> findByPharmacyIdAndStatus(Long pharmacyId, String status);
+    List<PrescriptionRequest> findByPatientPatientId(Long patientId);
+    List<PrescriptionRequest> findByPharmacyPharmacyId(Long pharmacyId);
+    List<PrescriptionRequest> findByPatientPatientIdAndStatus(Long patientId, PrescriptionRequest.Status status);
+    List<PrescriptionRequest> findByPharmacyPharmacyIdAndStatus(Long pharmacyId, PrescriptionRequest.Status status);
 }

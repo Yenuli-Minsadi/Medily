@@ -8,6 +8,6 @@ import java.util.List;
 
 @Repository
 public interface DoctorAvailabilityRepository extends JpaRepository<DoctorAvailability, Long> {
-    List<DoctorAvailability> findByDoctorId(Long doctorId);
-    List<DoctorAvailability> findByDoctorIdAndDayOfWeek(Long doctorId, String dayOfWeek);
+    List<DoctorAvailability> findByDoctorDoctorId(Integer doctorId);
+    List<DoctorAvailability> findByDoctorDoctorIdAndDayOfWeek(Integer doctorId, String dayOfWeek);
 }

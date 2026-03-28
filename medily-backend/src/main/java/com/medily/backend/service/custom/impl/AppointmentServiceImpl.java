@@ -28,7 +28,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public AppointmentResponseDTO bookAppointment(Long patientUserId, AppointmentRequestDTO request) {
-        Patient patient = patientRepository.findByUserId(patientUserId)
+        Patient patient = patientRepository.findByUserUserId(patientUserId)
                 .orElseThrow(() -> new RuntimeException("Patient profile not found"));
 
         Doctor doctor = doctorRepository.findById(request.getDoctorId())
@@ -47,17 +47,17 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public List<AppointmentResponseDTO> getAppointmentsByPatient(Long patientUserId) {
-        Patient patient = patientRepository.findByUserId(patientUserId)
+        Patient patient = patientRepository.findByUserUserId(patientUserId)
                 .orElseThrow(() -> new RuntimeException("Patient profile not found"));
-        return appointmentRepository.findByPatientId(Long.valueOf(patient.getPatientId()))
+        return appointmentRepository.findByPatientPatientId(patient.getPatientId())
                 .stream().map(this::mapToResponse).collect(Collectors.toList());
     }
 
     @Override
     public List<AppointmentResponseDTO> getAppointmentsByDoctor(Long doctorUserId) {
-        Doctor doctor = doctorRepository.findByUserId(doctorUserId)
+        Doctor doctor = doctorRepository.findByUserUserId(doctorUserId)
                 .orElseThrow(() -> new RuntimeException("Doctor profile not found"));
-        return appointmentRepository.findByDoctorId(Long.valueOf(doctor.getDoctorId()))
+        return appointmentRepository.findByDoctorDoctorId(doctor.getDoctorId())
                 .stream().map(this::mapToResponse).collect(Collectors.toList());
     }
 

@@ -8,8 +8,8 @@ import java.util.List;
 
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
-    List<Appointment> findByPatientId(Long patientId);
-    List<Appointment> findByDoctorId(Long doctorId);
-    List<Appointment> findByPatientIdAndStatus(Long patientId, String status);
-    List<Appointment> findByDoctorIdAndStatus(Long doctorId, String status);
+    List<Appointment> findByPatientPatientId(Integer patientId);
+    List<Appointment> findByDoctorDoctorId(Integer doctorId);
+    List<Appointment> findByPatientPatientIdAndStatus(Integer patientId, Appointment.Status status);
+    List<Appointment> findByDoctorDoctorIdAndStatus(Integer doctorId, Appointment.Status status);
 }

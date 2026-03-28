@@ -22,7 +22,7 @@ public class PrescriptionRequestServiceImpl implements PrescriptionRequestServic
 
     @Override
     public PrescriptionRequestResponseDTO sendRequest(Long patientUserId, PrescriptionRequestCreateDTO request) {
-        Patient patient = patientRepository.findByUserId(patientUserId)
+        Patient patient = patientRepository.findByUserUserId(patientUserId)
                 .orElseThrow(() -> new RuntimeException("Patient profile not found"));
 
         Prescription prescription = prescriptionRepository.findById(request.getPrescriptionId())
@@ -42,17 +42,17 @@ public class PrescriptionRequestServiceImpl implements PrescriptionRequestServic
 
     @Override
     public List<PrescriptionRequestResponseDTO> getRequestsByPatient(Long patientUserId) {
-        Patient patient = patientRepository.findByUserId(patientUserId)
+        Patient patient = patientRepository.findByUserUserId(patientUserId)
                 .orElseThrow(() -> new RuntimeException("Patient profile not found"));
-        return prescriptionRequestRepository.findByPatientId(Long.valueOf(patient.getPatientId()))
+        return prescriptionRequestRepository.findByPatientPatientId(Long.valueOf(patient.getPatientId()))
                 .stream().map(this::mapToResponse).collect(Collectors.toList());
     }
 
     @Override
     public List<PrescriptionRequestResponseDTO> getRequestsByPharmacy(Long pharmacyUserId) {
-        Pharmacy pharmacy = pharmacyRepository.findByUserId(pharmacyUserId)
+        Pharmacy pharmacy = pharmacyRepository.findByUserUserId(pharmacyUserId)
                 .orElseThrow(() -> new RuntimeException("Pharmacy profile not found"));
-        return prescriptionRequestRepository.findByPharmacyId(Long.valueOf(pharmacy.getPharmacyId()))
+        return prescriptionRequestRepository.findByPharmacyPharmacyId(Long.valueOf(pharmacy.getPharmacyId()))
                 .stream().map(this::mapToResponse).collect(Collectors.toList());
     }
 

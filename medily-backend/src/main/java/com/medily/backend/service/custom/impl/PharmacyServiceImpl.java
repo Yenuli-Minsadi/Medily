@@ -30,7 +30,7 @@ public class PharmacyServiceImpl implements PharmacyService {
         Pharmacy pharmacy = new Pharmacy();
         pharmacy.setUser(user);
         pharmacy.setName(request.getName());
-        pharmacy.setLocation(request.getAddress());
+        pharmacy.setCity(request.getAddress());
         pharmacy.setContactNumber(request.getPhone());
 
         Pharmacy saved = pharmacyRepository.save(pharmacy);
@@ -39,7 +39,7 @@ public class PharmacyServiceImpl implements PharmacyService {
 
     @Override
     public PharmacyResponseDTO getPharmacyByUserId(Long userId) {
-        Pharmacy pharmacy = pharmacyRepository.findByUserId(userId)
+        Pharmacy pharmacy = pharmacyRepository.findByUserUserId(userId)
                 .orElseThrow(() -> new RuntimeException("Pharmacy profile not found"));
         return mapToResponse(pharmacy);
     }
@@ -56,7 +56,7 @@ public class PharmacyServiceImpl implements PharmacyService {
         PharmacyResponseDTO dto = new PharmacyResponseDTO();
         dto.setId(Long.valueOf(pharmacy.getPharmacyId()));
         dto.setName(pharmacy.getName());
-        dto.setAddress(pharmacy.getLocation());
+        dto.setAddress(pharmacy.getCity());
         dto.setPhone(pharmacy.getContactNumber());
         return dto;
     }
