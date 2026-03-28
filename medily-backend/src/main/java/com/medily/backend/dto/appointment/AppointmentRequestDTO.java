@@ -8,8 +8,8 @@ public class AppointmentRequestDTO {
     @NotNull
     private Long doctorId;
     @NotNull
-    private String date;    // yyyy-MM-dd
+    private String date;// yyyy-MM-dd
     @NotNull
-    private String time;    // HH:mm
+    private String time;// HH:mm
     private String notes;
 }

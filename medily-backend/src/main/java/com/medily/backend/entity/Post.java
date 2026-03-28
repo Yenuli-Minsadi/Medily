@@ -24,6 +24,10 @@ public class Post {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @ManyToOne
+    @JoinColumn(name = "author_id", nullable = false)
+    private User author;
+
     @Column(name = "title", length = 150)
     private String title;
 
@@ -38,7 +42,6 @@ public class Post {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    // Enum
     public enum PostType {
         HEALTH_TIP, ANNOUNCEMENT, ALERT
     }

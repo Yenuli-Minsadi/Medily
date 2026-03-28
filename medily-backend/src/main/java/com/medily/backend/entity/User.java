@@ -18,7 +18,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private Integer userId;
+    private Long userId;
 
     @Column(name = "full_name", nullable = false, length = 100)
     private String fullName;
@@ -28,6 +28,9 @@ public class User {
 
     @Column(name = "phone", length = 10)
     private String phone;
+
+    @Column(name = "address", length = 255)
+    private String address;
 
     @Column(name = "password_hash", nullable = false, length = 255)
     private String passwordHash;
@@ -44,8 +47,6 @@ public class User {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-
-    // Enums
     public enum Role {
         PATIENT, DOCTOR, PHARMACIST, ADMIN
     }

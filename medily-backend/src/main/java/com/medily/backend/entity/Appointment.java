@@ -38,11 +38,13 @@ public class Appointment {
     @Column(name = "appointment_time")
     private LocalTime appointmentTime;
 
+    @Column(name = "notes")
+    private String notes;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private Status status = Status.BOOKED;
 
-    // Enum
     public enum Status {
         BOOKED, COMPLETED, CANCELLED
     }

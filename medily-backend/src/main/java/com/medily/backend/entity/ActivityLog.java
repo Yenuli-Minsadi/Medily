@@ -30,4 +30,6 @@ public class ActivityLog {
     @CreationTimestamp
     @Column(name = "timestamp", updatable = false)
     private LocalDateTime timestamp;
+
+
 }

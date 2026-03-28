@@ -21,6 +21,10 @@ public class Doctor {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @ManyToOne
+    @JoinColumn(name = "clinic_id")
+    private Clinic clinic;
+
     @Column(name = "specialization", length = 100)
     private String specialization;
 

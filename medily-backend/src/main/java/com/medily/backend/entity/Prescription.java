@@ -2,8 +2,10 @@ package com.medily.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "prescription")
@@ -33,4 +35,10 @@ public class Prescription {
 
     @Column(name = "issued_date")
     private LocalDate issuedDate;
+
+    @Column(name = "notes", columnDefinition = "TEXT")
+    private String notes;
+
+    @OneToMany(mappedBy = "prescription", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<PrescriptionItem> items;
 }

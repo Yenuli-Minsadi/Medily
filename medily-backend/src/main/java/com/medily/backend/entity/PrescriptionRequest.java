@@ -21,6 +21,10 @@ public class PrescriptionRequest {
     private Integer requestId;
 
     @ManyToOne
+    @JoinColumn(name = "patient_id", nullable = false)
+    private Patient patient;
+
+    @ManyToOne
     @JoinColumn(name = "prescription_id")
     private Prescription prescription;
 
@@ -39,7 +43,6 @@ public class PrescriptionRequest {
     @Column(name = "requested_at", updatable = false)
     private LocalDateTime requestedAt;
 
-    // Enum
     public enum Status {
         PENDING, AVAILABLE, NOT_AVAILABLE
     }
