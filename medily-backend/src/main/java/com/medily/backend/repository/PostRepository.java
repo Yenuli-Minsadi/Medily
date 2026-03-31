@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface PostRepository extends JpaRepository<Post, Long> {
-    List<Post> findByAuthorUserId(Long userId);
+public interface PostRepository extends JpaRepository<Post, Integer> {
+    List<Post> findByAuthorUserId(Integer userId);
     List<Post> findAllByOrderByCreatedAtDesc();
 }

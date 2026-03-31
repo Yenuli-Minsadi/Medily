@@ -6,9 +6,9 @@ import com.medily.backend.dto.appointment.AppointmentResponseDTO;
 import java.util.List;
 
 public interface AppointmentService {
-    AppointmentResponseDTO bookAppointment(Long patientUserId, AppointmentRequestDTO request);
-    List<AppointmentResponseDTO> getAppointmentsByPatient(Long patientUserId);
-    List<AppointmentResponseDTO> getAppointmentsByDoctor(Long doctorUserId);
-    AppointmentResponseDTO updateStatus(Long appointmentId, String status);
+    AppointmentResponseDTO bookAppointment(Integer patientUserId, AppointmentRequestDTO request);
+    List<AppointmentResponseDTO> getAppointmentsByPatient(Integer patientUserId);
+    List<AppointmentResponseDTO> getAppointmentsByDoctor(Integer doctorUserId);
+    AppointmentResponseDTO updateStatus(Integer appointmentId, String status);
     List<AppointmentResponseDTO> getAllAppointments();
 }

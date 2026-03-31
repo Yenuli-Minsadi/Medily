@@ -23,7 +23,7 @@ public class PharmacyServiceImpl implements PharmacyService {
     private final ModelMapper modelMapper;
 
     @Override
-    public PharmacyResponseDTO completeProfile(Long userId, PharmacyRequestDTO request) {
+    public PharmacyResponseDTO completeProfile(Integer userId, PharmacyRequestDTO request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -38,7 +38,7 @@ public class PharmacyServiceImpl implements PharmacyService {
     }
 
     @Override
-    public PharmacyResponseDTO getPharmacyByUserId(Long userId) {
+    public PharmacyResponseDTO getPharmacyByUserId(Integer userId) {
         Pharmacy pharmacy = pharmacyRepository.findByUserUserId(userId)
                 .orElseThrow(() -> new RuntimeException("Pharmacy profile not found"));
         return mapToResponse(pharmacy);
@@ -54,7 +54,7 @@ public class PharmacyServiceImpl implements PharmacyService {
 
     private PharmacyResponseDTO mapToResponse(Pharmacy pharmacy) {
         PharmacyResponseDTO dto = new PharmacyResponseDTO();
-        dto.setId(Long.valueOf(pharmacy.getPharmacyId()));
+        dto.setId(pharmacy.getPharmacyId());
         dto.setName(pharmacy.getName());
         dto.setAddress(pharmacy.getCity());
         dto.setPhone(pharmacy.getContactNumber());

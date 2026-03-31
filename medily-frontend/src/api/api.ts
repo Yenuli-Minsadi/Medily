@@ -1,14 +1,11 @@
 import axios from "axios";
 
-// Custom axios instance with default settings
-// Every API call in the app can use this instead of plain axios
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL, // set in .env file
+    baseURL: "http://localhost:8080",
     headers: { "Content-Type": "application/json" },
-    timeout: 10000,
+    timeout: 80000,  // ← change from 10000 to 30000
 });
 
-// Runs automatically before every request, attaches JWT token
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem("token");
@@ -18,16 +15,10 @@ api.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
-// Runs automatically after every response, handles token expiry
+// TEMPORARILY DISABLED - not redirecting on 401 so we can debug
 api.interceptors.response.use(
     (response) => response,
-    (error) => {
-        if (error.response?.status === 401) {
-            localStorage.removeItem("token");
-            window.location.href = "/";
-        }
-        return Promise.reject(error);
-    }
+    (error) => Promise.reject(error)
 );
 
 export default api;

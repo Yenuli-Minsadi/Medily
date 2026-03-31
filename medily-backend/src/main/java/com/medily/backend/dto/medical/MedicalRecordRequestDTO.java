@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class MedicalRecordRequestDTO {
     @NotNull
-    private Long patientId;
+    private Integer patientId;
     @NotBlank
     private String diagnosis;
     private String notes;

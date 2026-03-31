@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class MedicalRecordResponseDTO {
-    private Long id;
+    private Integer id;
     private String patientName;
     private String doctorName;
     private String diagnosis;

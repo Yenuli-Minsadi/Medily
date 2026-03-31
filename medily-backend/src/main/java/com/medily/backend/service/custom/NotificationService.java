@@ -5,7 +5,7 @@ import com.medily.backend.dto.notification.NotificationResponseDTO;
 import java.util.List;
 
 public interface NotificationService {
-    List<NotificationResponseDTO> getNotificationsByUser(Long userId);
-    void markAsRead(Long notificationId);
-    void createNotification(Long userId, String message, String type);
+    List<NotificationResponseDTO> getNotificationsByUser(Integer userId);
+    void markAsRead(Integer notificationId);
+    void createNotification(Integer userId, String message, String type);
 }

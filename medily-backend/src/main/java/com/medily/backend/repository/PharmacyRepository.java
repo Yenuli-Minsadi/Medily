@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface PharmacyRepository extends JpaRepository<Pharmacy, Long> {
-    Optional<Pharmacy> findByUserUserId(Long userId);
+public interface PharmacyRepository extends JpaRepository<Pharmacy, Integer> {
+    Optional<Pharmacy> findByUserUserId(Integer userId);
     List<Pharmacy> findByCity(String city);
 }

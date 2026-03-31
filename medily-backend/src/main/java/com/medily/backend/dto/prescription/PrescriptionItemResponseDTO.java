@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class PrescriptionItemResponseDTO {
-    private Long id;
+    private Integer id;
     private String medicineName;
     private String dosage;
     private String duration;

@@ -6,7 +6,7 @@ import java.util.List;
 
 @Data
 public class PostResponseDTO {
-    private Long id;
+    private Integer id;
     private String title;
     private String content;
     private String authorName;

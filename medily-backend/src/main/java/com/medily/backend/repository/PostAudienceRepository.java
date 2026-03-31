@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface PostAudienceRepository extends JpaRepository<PostAudience, Long> {
-    List<PostAudience> findByPostPostId(Long postId);
+public interface PostAudienceRepository extends JpaRepository<PostAudience, Integer> {
+    List<PostAudience> findByPostPostId(Integer postId);
 }

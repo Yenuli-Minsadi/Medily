@@ -4,11 +4,11 @@ import lombok.Data;
 
 @Data
 public class DoctorResponseDTO {
-    private Long id;
+    private Integer id;
     private String name;
     private String email;
     private String specialization;
-    private String qualifications;
+    private String licenseNumber;
     private String clinicName;
     private String clinicCity;
 }

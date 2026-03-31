@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class AppointmentResponseDTO {
-    private Long id;
+    private Integer id;
     private DoctorSummaryDTO doctor;
     private String patientName;
     private String clinicName;

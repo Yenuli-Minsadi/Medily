@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class PrescriptionRequestCreateDTO {
     @NotNull
-    private Long prescriptionId;
+    private Integer prescriptionId;
     @NotNull
-    private Long pharmacyId;
+    private Integer pharmacyId;
 }

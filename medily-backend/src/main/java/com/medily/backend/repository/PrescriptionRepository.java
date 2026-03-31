@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface PrescriptionRepository extends JpaRepository<Prescription, Long> {
+public interface PrescriptionRepository extends JpaRepository<Prescription, Integer> {
     List<Prescription> findByPatientPatientId(Integer patientId);
     List<Prescription> findByDoctorDoctorId(Integer doctorId);
     Optional<Prescription> findByAppointmentAppointmentId(Integer appointmentId);

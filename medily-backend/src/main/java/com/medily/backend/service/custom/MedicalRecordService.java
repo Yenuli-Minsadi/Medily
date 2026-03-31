@@ -6,6 +6,6 @@ import com.medily.backend.dto.medical.MedicalRecordResponseDTO;
 import java.util.List;
 
 public interface MedicalRecordService {
-    MedicalRecordResponseDTO createRecord(Long doctorUserId, MedicalRecordRequestDTO request);
-    List<MedicalRecordResponseDTO> getRecordsByPatient(Long patientUserId);
+    MedicalRecordResponseDTO createRecord(Integer doctorUserId, MedicalRecordRequestDTO request);
+    List<MedicalRecordResponseDTO> getRecordsByPatient(Integer patientUserId);
 }

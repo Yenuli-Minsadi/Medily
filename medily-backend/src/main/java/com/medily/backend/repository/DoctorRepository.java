@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface DoctorRepository extends JpaRepository<Doctor, Long> {
-    Optional<Doctor> findByUserUserId(Long userId);
+public interface DoctorRepository extends JpaRepository<Doctor, Integer> {
+    Optional<Doctor> findByUserUserId(Integer userId);
     List<Doctor> findBySpecialization(String specialization);
-    List<Doctor> findByClinicClinicId(Long clinicId);
+    List<Doctor> findByClinicClinicId(Integer clinicId);
 }

@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface PrescriptionItemRepository extends JpaRepository<PrescriptionItem, Long> {
+public interface PrescriptionItemRepository extends JpaRepository<PrescriptionItem, Integer> {
     List<PrescriptionItem> findByPrescriptionPrescriptionId(Integer prescriptionId);
 }

@@ -36,7 +36,7 @@ public class ActivityLogServiceImpl implements ActivityLogService {
 
     @Override
     public void log(Integer userId, String action) {
-        User user = userRepository.findById(Long.valueOf(userId))
+        User user = userRepository.findById((userId))
                 .orElseThrow(() -> new RuntimeException("User not found"));
         ActivityLog log = new ActivityLog();
         log.setUser(user);

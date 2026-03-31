@@ -8,6 +8,6 @@ import java.util.List;
 public interface ClinicService {
     ClinicResponseDTO createClinic(ClinicRequestDTO request);
     List<ClinicResponseDTO> getAllClinics();
-    ClinicResponseDTO getClinicById(Long id);
-    void deleteClinic(Long id);
+    ClinicResponseDTO getClinicById(Integer id);
+    void deleteClinic(Integer id);
 }

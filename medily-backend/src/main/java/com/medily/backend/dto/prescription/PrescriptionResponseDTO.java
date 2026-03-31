@@ -6,7 +6,7 @@ import java.util.List;
 
 @Data
 public class PrescriptionResponseDTO {
-    private Long id;
+    private Integer id;
     private String doctorName;
     private String patientName;
     private String appointmentDate;

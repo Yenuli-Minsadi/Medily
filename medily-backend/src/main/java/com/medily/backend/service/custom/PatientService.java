@@ -6,7 +6,7 @@ import com.medily.backend.dto.patient.PatientResponseDTO;
 import java.util.List;
 
 public interface PatientService {
-    PatientResponseDTO completeProfile(Long userId, PatientRequestDTO request);
-    PatientResponseDTO getPatientByUserId(Long userId);
+    PatientResponseDTO completeProfile(Integer userId, PatientRequestDTO request);
+    PatientResponseDTO getPatientByUserId(Integer userId);
     List<PatientResponseDTO> getAllPatients();
 }

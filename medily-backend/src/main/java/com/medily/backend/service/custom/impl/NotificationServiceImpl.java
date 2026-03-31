@@ -22,7 +22,7 @@ public class NotificationServiceImpl implements NotificationService {
     private final ModelMapper modelMapper;
 
     @Override
-    public List<NotificationResponseDTO> getNotificationsByUser(Long userId) {
+    public List<NotificationResponseDTO> getNotificationsByUser(Integer userId) {
         return notificationRepository.findByUserUserId(userId)
                 .stream()
                 .map(n -> modelMapper.map(n, NotificationResponseDTO.class))
@@ -30,7 +30,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void markAsRead(Long notificationId) {
+    public void markAsRead(Integer notificationId) {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new RuntimeException("Notification not found"));
         notification.setIsRead(true);
@@ -38,7 +38,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void createNotification(Long userId, String message, String type) {
+    public void createNotification(Integer userId, String message, String type) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         Notification notification = new Notification();

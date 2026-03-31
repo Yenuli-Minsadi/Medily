@@ -24,7 +24,7 @@ public class PatientServiceImpl implements PatientService {
     private final ModelMapper modelMapper;
 
     @Override
-    public PatientResponseDTO completeProfile(Long userId, PatientRequestDTO request) {
+    public PatientResponseDTO completeProfile(Integer userId, PatientRequestDTO request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -48,7 +48,7 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public PatientResponseDTO getPatientByUserId(Long userId) {
+    public PatientResponseDTO getPatientByUserId(Integer userId) {
         Patient patient = patientRepository.findByUserUserId(userId)
                 .orElseThrow(() -> new RuntimeException("Patient profile not found"));
         return mapToResponse(patient);
@@ -64,7 +64,7 @@ public class PatientServiceImpl implements PatientService {
 
     private PatientResponseDTO mapToResponse(Patient patient) {
         PatientResponseDTO dto = new PatientResponseDTO();
-        dto.setId(Long.valueOf(patient.getPatientId()));
+        dto.setId(patient.getPatientId());
         dto.setName(patient.getUser().getFullName());
         dto.setEmail(patient.getUser().getEmail());
         dto.setContact(patient.getUser().getPhone());

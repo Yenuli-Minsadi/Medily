@@ -34,14 +34,14 @@ public class ClinicServiceImpl implements ClinicService {
     }
 
     @Override
-    public ClinicResponseDTO getClinicById(Long id) {
+    public ClinicResponseDTO getClinicById(Integer id) {
         Clinic clinic = clinicRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Clinic not found"));
         return modelMapper.map(clinic, ClinicResponseDTO.class);
     }
 
     @Override
-    public void deleteClinic(Long id) {
+    public void deleteClinic(Integer id) {
         if (!clinicRepository.existsById(id)) {
             throw new RuntimeException("Clinic not found");
         }

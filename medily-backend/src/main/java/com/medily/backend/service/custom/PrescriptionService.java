@@ -6,8 +6,8 @@ import com.medily.backend.dto.prescription.PrescriptionResponseDTO;
 import java.util.List;
 
 public interface PrescriptionService {
-    PrescriptionResponseDTO createPrescription(Long doctorUserId, PrescriptionCreateRequestDTO request);
-    List<PrescriptionResponseDTO> getPrescriptionsByPatient(Long patientUserId);
-    List<PrescriptionResponseDTO> getPrescriptionsByDoctor(Long doctorUserId);
-    PrescriptionResponseDTO getPrescriptionById(Long id);
+    PrescriptionResponseDTO createPrescription(Integer doctorUserId, PrescriptionCreateRequestDTO request);
+    List<PrescriptionResponseDTO> getPrescriptionsByPatient(Integer patientUserId);
+    List<PrescriptionResponseDTO> getPrescriptionsByDoctor(Integer doctorUserId);
+    PrescriptionResponseDTO getPrescriptionById(Integer id);
 }

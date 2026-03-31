@@ -21,7 +21,7 @@ public class PrescriptionRequestServiceImpl implements PrescriptionRequestServic
     private final PharmacyRepository pharmacyRepository;
 
     @Override
-    public PrescriptionRequestResponseDTO sendRequest(Long patientUserId, PrescriptionRequestCreateDTO request) {
+    public PrescriptionRequestResponseDTO sendRequest(Integer patientUserId, PrescriptionRequestCreateDTO request) {
         Patient patient = patientRepository.findByUserUserId(patientUserId)
                 .orElseThrow(() -> new RuntimeException("Patient profile not found"));
 
@@ -41,23 +41,23 @@ public class PrescriptionRequestServiceImpl implements PrescriptionRequestServic
     }
 
     @Override
-    public List<PrescriptionRequestResponseDTO> getRequestsByPatient(Long patientUserId) {
+    public List<PrescriptionRequestResponseDTO> getRequestsByPatient(Integer patientUserId) {
         Patient patient = patientRepository.findByUserUserId(patientUserId)
                 .orElseThrow(() -> new RuntimeException("Patient profile not found"));
-        return prescriptionRequestRepository.findByPatientPatientId(Long.valueOf(patient.getPatientId()))
+        return prescriptionRequestRepository.findByPatientPatientId(patient.getPatientId())
                 .stream().map(this::mapToResponse).collect(Collectors.toList());
     }
 
     @Override
-    public List<PrescriptionRequestResponseDTO> getRequestsByPharmacy(Long pharmacyUserId) {
+    public List<PrescriptionRequestResponseDTO> getRequestsByPharmacy(Integer pharmacyUserId) {
         Pharmacy pharmacy = pharmacyRepository.findByUserUserId(pharmacyUserId)
                 .orElseThrow(() -> new RuntimeException("Pharmacy profile not found"));
-        return prescriptionRequestRepository.findByPharmacyPharmacyId(Long.valueOf(pharmacy.getPharmacyId()))
+        return prescriptionRequestRepository.findByPharmacyPharmacyId(pharmacy.getPharmacyId())
                 .stream().map(this::mapToResponse).collect(Collectors.toList());
     }
 
     @Override
-    public PrescriptionRequestResponseDTO updateStatus(Long requestId, String status) {
+    public PrescriptionRequestResponseDTO updateStatus(Integer requestId, String status) {
         PrescriptionRequest request = prescriptionRequestRepository.findById(requestId)
                 .orElseThrow(() -> new RuntimeException("Request not found"));
         request.setStatus(PrescriptionRequest.Status.valueOf(status));
@@ -66,7 +66,7 @@ public class PrescriptionRequestServiceImpl implements PrescriptionRequestServic
 
     private PrescriptionRequestResponseDTO mapToResponse(PrescriptionRequest r) {
         PrescriptionRequestResponseDTO dto = new PrescriptionRequestResponseDTO();
-        dto.setId(Long.valueOf(r.getRequestId()));
+        dto.setId(r.getRequestId());
         dto.setPatientName(r.getPatient().getUser().getFullName());
         dto.setPharmacyName(r.getPharmacy().getName());
         dto.setStatus(String.valueOf(r.getStatus()));

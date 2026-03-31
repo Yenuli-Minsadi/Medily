@@ -20,9 +20,11 @@ public class Clinic {
     @Column(name = "name", length = 100)
     private String name;
 
-    @Column(name = "city", length = 255)
-    private String city;
+    private String address;
 
     @Column(name = "contact_number", length = 10)
     private String contactNumber;
+
+    @Column(name = "city", length = 255)
+    private String city;
 }

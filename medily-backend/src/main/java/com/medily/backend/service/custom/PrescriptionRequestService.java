@@ -6,8 +6,8 @@ import com.medily.backend.dto.prescriptionrequest.PrescriptionRequestResponseDTO
 import java.util.List;
 
 public interface PrescriptionRequestService {
-    PrescriptionRequestResponseDTO sendRequest(Long patientUserId, PrescriptionRequestCreateDTO request);
-    List<PrescriptionRequestResponseDTO> getRequestsByPatient(Long patientUserId);
-    List<PrescriptionRequestResponseDTO> getRequestsByPharmacy(Long pharmacyUserId);
-    PrescriptionRequestResponseDTO updateStatus(Long requestId, String status);
+    PrescriptionRequestResponseDTO sendRequest(Integer patientUserId, PrescriptionRequestCreateDTO request);
+    List<PrescriptionRequestResponseDTO> getRequestsByPatient(Integer patientUserId);
+    List<PrescriptionRequestResponseDTO> getRequestsByPharmacy(Integer pharmacyUserId);
+    PrescriptionRequestResponseDTO updateStatus(Integer requestId, String status);
 }

@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class PrescriptionRequestResponseDTO {
-    private Long id;
+    private Integer id;
     private String patientName;
     private String pharmacyName;
     private String status;// Pending, Accepted, Rejected

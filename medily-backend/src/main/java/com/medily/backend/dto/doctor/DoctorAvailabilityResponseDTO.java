@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class DoctorAvailabilityResponseDTO {
-    private Long id;
+    private Integer id;
     private String dayOfWeek;
     private String startTime;
     private String endTime;

@@ -9,7 +9,7 @@ public class DoctorRequestDTO {
     @NotBlank
     private String specialization;
     @NotBlank
-    private String qualification;
+    private String licenseNumber;
     @NotNull
-    private Long clinicId;
+    private Integer clinicId;
 }

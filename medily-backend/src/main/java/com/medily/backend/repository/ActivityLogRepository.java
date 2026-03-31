@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ActivityLogRepository extends JpaRepository<ActivityLog, Long> {
-    List<ActivityLog> findByUserUserId(Long userId);
+public interface ActivityLogRepository extends JpaRepository<ActivityLog, Integer> {
+    List<ActivityLog> findByUserUserId(Integer userId);
     List<ActivityLog> findTop20ByOrderByTimestampDesc();
 }

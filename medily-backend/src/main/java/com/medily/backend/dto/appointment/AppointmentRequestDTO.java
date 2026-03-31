@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 public class AppointmentRequestDTO {
     @NotNull
-    private Long doctorId;
+    private Integer doctorId;
     @NotNull
     private String date;// yyyy-MM-dd
     @NotNull

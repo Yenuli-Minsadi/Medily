@@ -8,9 +8,9 @@ import java.util.List;
 @Data
 public class PrescriptionCreateRequestDTO {
     @NotNull
-    private Long patientId;
+    private Integer patientId;
     @NotNull
-    private Long appointmentId;
+    private Integer appointmentId;
     private String notes;
     @NotNull
     private List<PrescriptionItemRequestDTO> items;

@@ -6,7 +6,7 @@ import com.medily.backend.dto.pharmacy.PharmacyResponseDTO;
 import java.util.List;
 
 public interface PharmacyService {
-    PharmacyResponseDTO completeProfile(Long userId, PharmacyRequestDTO request);
-    PharmacyResponseDTO getPharmacyByUserId(Long userId);
+    PharmacyResponseDTO completeProfile(Integer userId, PharmacyRequestDTO request);
+    PharmacyResponseDTO getPharmacyByUserId(Integer userId);
     List<PharmacyResponseDTO> getAllPharmacies();
 }

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface DoctorAvailabilityRepository extends JpaRepository<DoctorAvailability, Long> {
+public interface DoctorAvailabilityRepository extends JpaRepository<DoctorAvailability, Integer> {
     List<DoctorAvailability> findByDoctorDoctorId(Integer doctorId);
     List<DoctorAvailability> findByDoctorDoctorIdAndDayOfWeek(Integer doctorId, String dayOfWeek);
 }

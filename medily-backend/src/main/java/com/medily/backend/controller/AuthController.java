@@ -3,6 +3,7 @@ package com.medily.backend.controller;
 import com.medily.backend.dto.auth.AuthResponseDTO;
 import com.medily.backend.dto.auth.LoginRequestDTO;
 import com.medily.backend.dto.auth.RegisterRequestDTO;
+import com.medily.backend.dto.common.ApiResponse;
 import com.medily.backend.service.custom.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,12 +18,12 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponseDTO> register(@Valid @RequestBody RegisterRequestDTO request) {
-        return ResponseEntity.ok(authService.register(request));
+    public ResponseEntity<ApiResponse<AuthResponseDTO>> register(@Valid @RequestBody RegisterRequestDTO request) {
+        return ResponseEntity.ok(ApiResponse.success(authService.register(request)));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
-        return ResponseEntity.ok(authService.login(request));
+    public ResponseEntity<ApiResponse<AuthResponseDTO>> login(@Valid @RequestBody LoginRequestDTO request) {
+        return ResponseEntity.ok(ApiResponse.success(authService.login(request)));
     }
 }

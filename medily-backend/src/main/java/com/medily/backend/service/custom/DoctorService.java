@@ -6,8 +6,8 @@ import com.medily.backend.dto.doctor.DoctorResponseDTO;
 import java.util.List;
 
 public interface DoctorService {
-    DoctorResponseDTO completeProfile(Long userId, DoctorRequestDTO request);
-    DoctorResponseDTO getDoctorByUserId(Long userId);
+    DoctorResponseDTO completeProfile(Integer userId, DoctorRequestDTO request);
+    DoctorResponseDTO getDoctorByUserId(Integer userId);
     List<DoctorResponseDTO> getAllDoctors();
     List<DoctorResponseDTO> getDoctorsBySpecialization(String specialization);
 }

@@ -7,21 +7,38 @@ import DoctorDashboard from "./pages/DoctorDashboard";
 import PatientDashboard from "./pages/PatientDashboard";
 import PharmacyDashboard from "./pages/PharmacyDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
     <Router>
       <Routes>
+        {/* Public routes */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
-        {/* Add more routes as needed */}
         <Route path="/signup" element={<SignUp />} />
 
-        <Route path="/doctordashboard" element={<DoctorDashboard />} />
-        <Route path="/patientdashboard" element={<PatientDashboard />} />
-        <Route path="/pharmacydashboard" element={<PharmacyDashboard />} />
-        <Route path="/admindashboard" element={<AdminDashboard />} />
-        {/* <Route path="/dashboard" element={<DoctorMedicalFeed />} /> */}
+        {/* Protected routes */}
+        <Route path="/doctordashboard" element={
+          <ProtectedRoute allowedRole="DOCTOR">
+            <DoctorDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/patientdashboard" element={
+          <ProtectedRoute allowedRole="PATIENT">
+            <PatientDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/pharmacydashboard" element={
+          <ProtectedRoute allowedRole="PHARMACIST">
+            <PharmacyDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/admindashboard" element={
+          <ProtectedRoute allowedRole="ADMIN">
+            <AdminDashboard />
+          </ProtectedRoute>
+        } />
       </Routes>
     </Router>
   );

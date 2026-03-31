@@ -27,7 +27,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final PatientRepository patientRepository;
 
     @Override
-    public AppointmentResponseDTO bookAppointment(Long patientUserId, AppointmentRequestDTO request) {
+    public AppointmentResponseDTO bookAppointment(Integer patientUserId, AppointmentRequestDTO request) {
         Patient patient = patientRepository.findByUserUserId(patientUserId)
                 .orElseThrow(() -> new RuntimeException("Patient profile not found"));
 
@@ -46,7 +46,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public List<AppointmentResponseDTO> getAppointmentsByPatient(Long patientUserId) {
+    public List<AppointmentResponseDTO> getAppointmentsByPatient(Integer patientUserId) {
         Patient patient = patientRepository.findByUserUserId(patientUserId)
                 .orElseThrow(() -> new RuntimeException("Patient profile not found"));
         return appointmentRepository.findByPatientPatientId(patient.getPatientId())
@@ -54,7 +54,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public List<AppointmentResponseDTO> getAppointmentsByDoctor(Long doctorUserId) {
+    public List<AppointmentResponseDTO> getAppointmentsByDoctor(Integer doctorUserId) {
         Doctor doctor = doctorRepository.findByUserUserId(doctorUserId)
                 .orElseThrow(() -> new RuntimeException("Doctor profile not found"));
         return appointmentRepository.findByDoctorDoctorId(doctor.getDoctorId())
@@ -62,7 +62,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public AppointmentResponseDTO updateStatus(Long appointmentId, String status) {
+    public AppointmentResponseDTO updateStatus(Integer appointmentId, String status) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new RuntimeException("Appointment not found"));
         appointment.setStatus(Appointment.Status.valueOf(status));
@@ -77,7 +77,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     private AppointmentResponseDTO mapToResponse(Appointment a) {
         AppointmentResponseDTO dto = new AppointmentResponseDTO();
-        dto.setId(Long.valueOf(a.getAppointmentId()));
+        dto.setId(a.getAppointmentId());
         dto.setDate(String.valueOf(a.getAppointmentDate()));
         dto.setTime(String.valueOf(a.getAppointmentTime()));
         dto.setStatus(String.valueOf(a.getStatus()));
@@ -86,7 +86,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         dto.setClinicName(a.getDoctor().getClinic().getName());
 
         DoctorSummaryDTO doctorSummary = new DoctorSummaryDTO();
-        doctorSummary.setId(Long.valueOf(a.getDoctor().getDoctorId()));
+        doctorSummary.setId(a.getDoctor().getDoctorId());
         doctorSummary.setName(a.getDoctor().getUser().getFullName());
         doctorSummary.setSpecialization(a.getDoctor().getSpecialization());
         dto.setDoctor(doctorSummary);

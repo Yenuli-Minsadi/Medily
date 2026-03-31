@@ -26,7 +26,7 @@ public class DoctorServiceImpl implements DoctorService {
     private final ModelMapper modelMapper;
 
     @Override
-    public DoctorResponseDTO completeProfile(Long userId, DoctorRequestDTO request) {
+    public DoctorResponseDTO completeProfile(Integer userId, DoctorRequestDTO request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -36,7 +36,7 @@ public class DoctorServiceImpl implements DoctorService {
         Doctor doctor = new Doctor();
         doctor.setUser(user);
         doctor.setSpecialization(request.getSpecialization());
-        doctor.setLicenseNumber(request.getQualification());
+        doctor.setLicenseNumber(request.getLicenseNumber());
         doctor.setClinic(clinic);
 
         Doctor saved = doctorRepository.save(doctor);
@@ -44,7 +44,7 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     @Override
-    public DoctorResponseDTO getDoctorByUserId(Long userId) {
+    public DoctorResponseDTO getDoctorByUserId(Integer userId) {
         Doctor doctor = doctorRepository.findByUserUserId(userId)
                 .orElseThrow(() -> new RuntimeException("Doctor profile not found"));
         return mapToResponse(doctor);
@@ -68,11 +68,11 @@ public class DoctorServiceImpl implements DoctorService {
 
     private DoctorResponseDTO mapToResponse(Doctor doctor) {
         DoctorResponseDTO dto = new DoctorResponseDTO();
-        dto.setId(Long.valueOf(doctor.getDoctorId()));
+        dto.setId(doctor.getDoctorId());
         dto.setName(doctor.getUser().getFullName());
         dto.setEmail(doctor.getUser().getEmail());
         dto.setSpecialization(doctor.getSpecialization());
-        dto.setQualifications(doctor.getLicenseNumber());
+        dto.setLicenseNumber(doctor.getLicenseNumber());
         dto.setClinicName(doctor.getClinic().getName());
         dto.setClinicCity(doctor.getClinic().getCity());
         return dto;

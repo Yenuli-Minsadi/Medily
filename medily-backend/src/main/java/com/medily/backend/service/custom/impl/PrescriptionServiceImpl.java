@@ -21,7 +21,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     private final AppointmentRepository appointmentRepository;
 
     @Override
-    public PrescriptionResponseDTO createPrescription(Long doctorUserId, PrescriptionCreateRequestDTO request) {
+    public PrescriptionResponseDTO createPrescription(Integer doctorUserId, PrescriptionCreateRequestDTO request) {
         Doctor doctor = doctorRepository.findByUserUserId(doctorUserId)
                 .orElseThrow(() -> new RuntimeException("Doctor profile not found"));
 
@@ -57,7 +57,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     }
 
     @Override
-    public List<PrescriptionResponseDTO> getPrescriptionsByPatient(Long patientUserId) {
+    public List<PrescriptionResponseDTO> getPrescriptionsByPatient(Integer patientUserId) {
         Patient patient = patientRepository.findByUserUserId(patientUserId)
                 .orElseThrow(() -> new RuntimeException("Patient profile not found"));
         return prescriptionRepository.findByPatientPatientId(patient.getPatientId())
@@ -65,7 +65,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     }
 
     @Override
-    public List<PrescriptionResponseDTO> getPrescriptionsByDoctor(Long doctorUserId) {
+    public List<PrescriptionResponseDTO> getPrescriptionsByDoctor(Integer doctorUserId) {
         Doctor doctor = doctorRepository.findByUserUserId(doctorUserId)
                 .orElseThrow(() -> new RuntimeException("Doctor profile not found"));
         return prescriptionRepository.findByDoctorDoctorId(doctor.getDoctorId())
@@ -73,7 +73,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     }
 
     @Override
-    public PrescriptionResponseDTO getPrescriptionById(Long id) {
+    public PrescriptionResponseDTO getPrescriptionById(Integer id) {
         Prescription prescription = prescriptionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Prescription not found"));
         return mapToResponse(prescription);
@@ -81,14 +81,14 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
     private PrescriptionResponseDTO mapToResponse(Prescription p) {
         PrescriptionResponseDTO dto = new PrescriptionResponseDTO();
-        dto.setId(Long.valueOf(p.getPrescriptionId()));
+        dto.setId(p.getPrescriptionId());
         dto.setDoctorName(p.getDoctor().getUser().getFullName());
         dto.setPatientName(p.getPatient().getUser().getFullName());
         dto.setNotes(p.getNotes());
 
         List<PrescriptionItemResponseDTO> itemDTOs = p.getItems().stream().map(item -> {
             PrescriptionItemResponseDTO itemDTO = new PrescriptionItemResponseDTO();
-            itemDTO.setId(Long.valueOf(item.getItemId()));
+            itemDTO.setId(item.getItemId());
             itemDTO.setMedicineName(item.getMedicineName());
             itemDTO.setDosage(item.getDosage());
             itemDTO.setDuration(item.getDuration());

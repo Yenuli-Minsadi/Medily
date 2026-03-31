@@ -21,7 +21,7 @@ public class PostServiceImpl implements PostService {
     private final UserRepository userRepository;
 
     @Override
-    public PostResponseDTO createPost(Long doctorUserId, PostCreateRequestDTO request) {
+    public PostResponseDTO createPost(Integer doctorUserId, PostCreateRequestDTO request) {
         User user = userRepository.findById(doctorUserId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -40,7 +40,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void deletePost(Long postId) {
+    public void deletePost(Integer postId) {
         if (!postRepository.existsById(postId)) {
             throw new RuntimeException("Post not found");
         }
@@ -49,7 +49,7 @@ public class PostServiceImpl implements PostService {
 
     private PostResponseDTO mapToResponse(Post p) {
         PostResponseDTO dto = new PostResponseDTO();
-        dto.setId(Long.valueOf(p.getPostId()));
+        dto.setId(p.getPostId());
         dto.setTitle(p.getTitle());
         dto.setContent(p.getContent());
         dto.setAuthorName(p.getAuthor().getFullName());
