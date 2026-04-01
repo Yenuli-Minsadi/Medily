@@ -44,6 +44,12 @@ public class PatientController {
         return ResponseEntity.ok(ApiResponse.success(patientService.getAllPatients()));
     }
 
+//     List patients when writing prescriptions (Doctor only)
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<List<PatientResponseDTO>>> searchPatients(@RequestParam String name) {
+        return ResponseEntity.ok(ApiResponse.success(patientService.searchByName(name)));
+    }
+
     private Integer getCurrentUserId() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByEmail(email)

@@ -1,5 +1,7 @@
 package com.medily.backend.controller;
 
+import com.medily.backend.dto.clinic.ClinicRequestDTO;
+import com.medily.backend.dto.clinic.ClinicResponseDTO;
 import com.medily.backend.dto.common.ApiResponse;
 import com.medily.backend.dto.doctor.*;
 import com.medily.backend.entity.User;

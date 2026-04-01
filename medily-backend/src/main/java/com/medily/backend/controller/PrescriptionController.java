@@ -1,5 +1,7 @@
 package com.medily.backend.controller;
 
+import com.medily.backend.dto.clinic.ClinicRequestDTO;
+import com.medily.backend.dto.clinic.ClinicResponseDTO;
 import com.medily.backend.dto.common.ApiResponse;
 import com.medily.backend.dto.prescription.PrescriptionCreateRequestDTO;
 import com.medily.backend.dto.prescription.PrescriptionResponseDTO;
@@ -9,7 +11,9 @@ import com.medily.backend.service.custom.PrescriptionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,9 +30,23 @@ public class PrescriptionController {
     @PostMapping
     public ResponseEntity<ApiResponse<PrescriptionResponseDTO>> createPrescription(
             @Valid @RequestBody PrescriptionCreateRequestDTO request) {
-        Integer userId = getCurrentUserId();
-        return ResponseEntity.status(201).body(ApiResponse.success(
-                prescriptionService.createPrescription((userId), request), "Prescription created"));
+
+        // FIX: Use the helper method to get the ID from the Security Context
+        Integer doctorUserId = getCurrentUserId();
+
+        return ResponseEntity.status(201)
+                .body(ApiResponse.success(
+                        prescriptionService.createPrescription(doctorUserId, request),
+                        "Prescription issued successfully"
+                ));
+    }
+
+    // Update a clinic by id (Doctor only)
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<PrescriptionResponseDTO>> updatePrescription(
+            @PathVariable Integer id,
+            @Valid @RequestBody PrescriptionCreateRequestDTO request) {
+        return ResponseEntity.ok(ApiResponse.success(prescriptionService.updatePrescription(id, request), "Prescription updated"));
     }
 
     // List all prescriptions (Patient only)

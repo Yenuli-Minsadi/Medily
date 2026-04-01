@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface ClinicService {
     ClinicResponseDTO createClinic(ClinicRequestDTO request);
+    public ClinicResponseDTO updateClinic(Integer id, ClinicRequestDTO request);
     List<ClinicResponseDTO> getAllClinics();
     ClinicResponseDTO getClinicById(Integer id);
     void deleteClinic(Integer id);

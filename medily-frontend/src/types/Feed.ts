@@ -23,7 +23,7 @@ export interface FeedAuthor {
 // }
 
 export interface FeedPost {
-  id: number;
+  id: string;
   author: {
     name: string;
     specialty: string;

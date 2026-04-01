@@ -9,4 +9,5 @@ public interface PatientService {
     PatientResponseDTO completeProfile(Integer userId, PatientRequestDTO request);
     PatientResponseDTO getPatientByUserId(Integer userId);
     List<PatientResponseDTO> getAllPatients();
+    List<PatientResponseDTO> searchByName(String name);
 }

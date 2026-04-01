@@ -62,6 +62,30 @@ public class PatientServiceImpl implements PatientService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<PatientResponseDTO> searchByName(String query) {
+        List<Patient> patients;
+
+        if (query.matches("\\d+")) {
+            Integer id = Integer.parseInt(query);
+            patients = patientRepository.findByPatientIdOrUserFullNameContainingIgnoreCase(id, query);
+        } else {
+            patients = patientRepository.findByUserFullNameContainingIgnoreCase(query);
+        }
+
+        return patients.stream()
+                .map(patient -> {
+                    PatientResponseDTO dto = modelMapper.map(patient, PatientResponseDTO.class);
+
+                    if (patient.getUser() != null) {
+                        dto.setName(patient.getUser().getFullName());
+                        dto.setId(patient.getPatientId());
+                    }
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
+
     private PatientResponseDTO mapToResponse(Patient patient) {
         PatientResponseDTO dto = new PatientResponseDTO();
         dto.setId(patient.getPatientId());

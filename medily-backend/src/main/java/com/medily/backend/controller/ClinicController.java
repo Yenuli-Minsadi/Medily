@@ -26,6 +26,14 @@ public class ClinicController {
                 .body(ApiResponse.success(clinicService.createClinic(request), "Clinic created"));
     }
 
+    // Update a clinic by id (Admin only)
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<ClinicResponseDTO>> updateClinic(
+            @PathVariable Integer id,
+            @Valid @RequestBody ClinicRequestDTO request) {
+        return ResponseEntity.ok(ApiResponse.success(clinicService.updateClinic(id, request), "Clinic updated"));
+    }
+
     // Retrieve all registered clinics (Anyone can view)
     @GetMapping
     public ResponseEntity<ApiResponse<List<ClinicResponseDTO>>> getAllClinics() {

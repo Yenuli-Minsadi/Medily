@@ -1,10 +1,13 @@
 package com.medily.backend.service.custom.impl;
 
+import com.medily.backend.dto.clinic.ClinicRequestDTO;
+import com.medily.backend.dto.clinic.ClinicResponseDTO;
 import com.medily.backend.dto.prescription.*;
 import com.medily.backend.entity.*;
 import com.medily.backend.repository.*;
 import com.medily.backend.service.custom.PrescriptionService;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,6 +22,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     private final DoctorRepository doctorRepository;
     private final PatientRepository patientRepository;
     private final AppointmentRepository appointmentRepository;
+    private final ModelMapper modelMapper;
 
     @Override
     public PrescriptionResponseDTO createPrescription(Integer doctorUserId, PrescriptionCreateRequestDTO request) {
@@ -54,6 +58,15 @@ public class PrescriptionServiceImpl implements PrescriptionService {
         saved.setItems(items);
 
         return mapToResponse(saved);
+    }
+
+    @Override
+    public PrescriptionResponseDTO updatePrescription(Integer id, PrescriptionCreateRequestDTO request) {
+        Prescription existingPrescription = prescriptionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Prescription not found with id: " + id));
+        modelMapper.map(request, existingPrescription);
+        Prescription updatePrescription = prescriptionRepository.save(existingPrescription);
+        return modelMapper.map(updatePrescription, PrescriptionResponseDTO.class);
     }
 
     @Override

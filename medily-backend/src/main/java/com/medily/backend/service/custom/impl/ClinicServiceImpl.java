@@ -26,6 +26,15 @@ public class ClinicServiceImpl implements ClinicService {
     }
 
     @Override
+    public ClinicResponseDTO updateClinic(Integer id, ClinicRequestDTO request) {
+        Clinic existingClinic = clinicRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Clinic not found with id: " + id));
+        modelMapper.map(request, existingClinic);
+        Clinic updatedClinic = clinicRepository.save(existingClinic);
+        return modelMapper.map(updatedClinic, ClinicResponseDTO.class);
+    }
+
+    @Override
     public List<ClinicResponseDTO> getAllClinics() {
         return clinicRepository.findAll()
                 .stream()
