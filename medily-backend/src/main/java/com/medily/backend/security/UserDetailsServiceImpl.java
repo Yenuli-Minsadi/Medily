@@ -19,8 +19,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        System.out.println("=== loadUserByUsername called with: " + email);
+
         com.medily.backend.entity.User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
+
+        System.out.println("=== User found: " + user.getEmail() + " | hash: " + user.getPasswordHash());
 
         return new User(
                 user.getEmail(),

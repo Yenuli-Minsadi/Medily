@@ -26,11 +26,19 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
     @Override
     public PrescriptionResponseDTO createPrescription(Integer doctorUserId, PrescriptionCreateRequestDTO request) {
+        System.out.println(">>> doctorUserId: " + doctorUserId);
+        System.out.println(">>> patientId: " + request.getPatientId());
+        System.out.println(">>> appointmentId: " + request.getAppointmentId());
+
         Doctor doctor = doctorRepository.findByUserUserId(doctorUserId)
                 .orElseThrow(() -> new RuntimeException("Doctor profile not found"));
+        System.out.println(">>> doctor found: " + doctor.getDoctorId());
+        System.out.println(">>> doctor clinic: " + doctor.getClinic());
 
         Patient patient = patientRepository.findById(request.getPatientId())
                 .orElseThrow(() -> new RuntimeException("Patient not found"));
+        System.out.println(">>> doctor found: " + doctor.getDoctorId());
+        System.out.println(">>> doctor clinic: " + doctor.getClinic());
 
         Appointment appointment = appointmentRepository.findById(request.getAppointmentId())
                 .orElseThrow(() -> new RuntimeException("Appointment not found"));

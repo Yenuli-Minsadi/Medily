@@ -39,7 +39,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         final String jwt = authHeader.substring(7);
-        final String userEmail = jwtService.extractUsername(jwt);
+        final String userEmail;
+
+        try {
+            userEmail = jwtService.extractUsername(jwt);
+        } catch (Exception e) {
+            // If token is expired, malformed, invalid or malformed skip authentication
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         // Only authenticate if not already authenticated
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {

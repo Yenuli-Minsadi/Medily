@@ -56,8 +56,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()// auth/login and auth/register allowed w/o token since public
                         .anyRequest().authenticated()// Every other request with a valid JWT allowed
                 )
-                .addFilterBefore(rateLimitingFilter, JwtAuthenticationFilter.class)// Apply rate limiting before authentication to save server resources
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);// Check for a valid JWT in the request header
+                .addFilterBefore(rateLimitingFilter, UsernamePasswordAuthenticationFilter.class)// Apply rate limiting before authentication to save server resources
+                .addFilterBefore(jwtAuthFilter, RateLimitingFilter.class);// Check for a valid JWT in the request header
 
         return http.build();
     }
