@@ -16,6 +16,7 @@ import {
 } from "../constants/menu/sidebarMenu";
 import type { PatientMenuItem as MenuItem } from "../constants/menu/sidebarMenu";
 import type { FeedPost, UserData } from "../types";
+import axios from "axios";
 
 // Stripe Modal
 interface StripeModalProps {
@@ -306,81 +307,172 @@ const PrescriptionsPage: React.FC<{ onPayPharmacy: (amt: number, desc: string) =
 const AppointmentsPage: React.FC<{ onPay: (amt: number, desc: string) => void }> = ({ onPay }) => {
     const [bookingDoctor, setBookingDoctor] = useState<string | null>(null);
     const [bookedSlot, setBookedSlot] = useState<{ [k: string]: string }>({});
-    const timeSlots = ["9:00 AM", "10:30 AM", "12:00 PM", "2:00 PM", "3:30 PM", "5:00 PM"];
+    const [selectedDate, setSelectedDate] = useState<{ [k: string]: string }>({});
+    const [doctors, setDoctors] = useState<any[]>([]);
+    const [myAppointments, setMyAppointments] = useState<any[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [bookingSuccess, setBookingSuccess] = useState<string | null>(null);
 
+    const timeSlots = ["09:00", "10:30", "12:00", "14:00", "15:30", "17:00"];
+    const token = localStorage.getItem("token");
+
+    // Load doctors and patient's appointments on mount
+    useEffect(() => {
+        fetchDoctors();
+        fetchMyAppointments();
+    }, []);
+
+    const fetchDoctors = async () => {
+        try {
+            const res = await axios.get("http://localhost:8080/api/doctors", {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setDoctors(res.data.data);
+        } catch (err) {
+            console.error("Failed to load doctors");
+        }
+    };
+
+    const fetchMyAppointments = async () => {
+        try {
+            const res = await axios.get("http://localhost:8080/api/appointments/my", {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setMyAppointments(res.data.data);
+        } catch (err) {
+            console.error("Failed to load appointments");
+        }
+    };
+
+    const handleConfirmBooking = async (doctor: any) => {
+        const time = bookedSlot[doctor.id];
+        const date = selectedDate[doctor.id];
+
+        if (!time || !date) {
+            alert("Please select a date and time slot.");
+            return;
+        }
+
+        setLoading(true);
+        try {
+            await axios.post("http://localhost:8080/api/appointments",
+                {
+                    doctorId: doctor.id,
+                    date: date,
+                    time: time,
+                    notes: ""
+                },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            setBookingSuccess(`Appointment booked with ${doctor.name}!`);
+            setBookingDoctor(null);
+            fetchMyAppointments(); // refresh list
+            setTimeout(() => setBookingSuccess(null), 3000);
+        } catch (err) {
+            alert("Failed to book appointment. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    }
     return (
         <div className="space-y-6">
             <div>
                 <h1 className="text-2xl font-black text-gray-900">Appointments</h1>
                 <p className="text-gray-500 text-sm mt-0.5">Book, manage, and track your doctor visits</p>
             </div>
-            <div>
-                <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Upcoming</h3>
-                <div className="space-y-3">
-                    {APPOINTMENTS.filter((a) => a.status === "upcoming").map((apt) => (
-                        <div key={apt.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex flex-col sm:flex-row sm:items-center gap-4">
-                            <div className="flex items-center gap-4 flex-1">
-                                <img src={apt.avatar} alt="" className="w-12 h-12 rounded-2xl border-2 border-gray-100 flex-shrink-0" />
-                                <div>
-                                    <div className="font-bold text-gray-900">{apt.doctor}</div>
-                                    <div className="text-gray-500 text-xs">{apt.specialty}</div>
-                                    <div className="flex items-center flex-wrap gap-2 mt-1.5 text-xs text-gray-400">
-                                        <span>📅 {apt.date}</span><span>🕐 {apt.time}</span><span>📍 {apt.location}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className={`text-xs font-bold px-2.5 py-1 rounded-full capitalize ${apt.type === "follow-up" ? "bg-violet-100 text-violet-700" : apt.type === "consultation" ? "bg-blue-100 text-blue-700" : "bg-teal-100 text-teal-700"}`}>{apt.type}</span>
-                                <button onClick={() => onPay(apt.fee, `Appointment with ${apt.doctor}`)} className="bg-indigo-600 text-white text-xs font-bold px-4 py-2 rounded-xl hover:bg-indigo-700 transition-colors shadow-md shadow-indigo-200 whitespace-nowrap">Pay ${apt.fee}</button>
-                                <button className="border border-red-200 text-red-500 text-xs font-bold px-3 py-2 rounded-xl hover:bg-red-50 transition-colors">Cancel</button>
-                            </div>
-                        </div>
-                    ))}
+
+            {bookingSuccess && (
+                <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl px-4 py-3 text-sm font-semibold">
+                    ✓ {bookingSuccess}
                 </div>
-            </div>
+            )}
+
+            {/* My Appointments from backend */}
+            {myAppointments.length > 0 && (
+                <div>
+                    <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">My Appointments</h3>
+                    <div className="space-y-3">
+                        {myAppointments.map((apt) => (
+                            <div key={apt.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
+                                <div className="bg-indigo-100 rounded-xl px-3 py-2 text-center flex-shrink-0">
+                                    <div className="text-indigo-700 font-black text-sm">{apt.date}</div>
+                                    <div className="text-indigo-500 text-xs">{apt.time}</div>
+                                </div>
+                                <div className="flex-1">
+                                    <div className="font-bold text-gray-900">{apt.doctor?.name}</div>
+                                    <div className="text-gray-500 text-xs">{apt.doctor?.specialization} · {apt.clinicName}</div>
+                                </div>
+                                <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
+                                    apt.status === "BOOKED" ? "bg-blue-100 text-blue-700" :
+                                        apt.status === "PENDING" ? "bg-amber-100 text-amber-700" :
+                                            apt.status === "COMPLETED" ? "bg-gray-100 text-gray-500" :
+                                                "bg-red-100 text-red-600"
+                                }`}>{apt.status}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* Book New Appointment */}
             <div>
                 <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Book a New Appointment</h3>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {AVAILABLE_DOCTORS.map((doc) => (
-                        <div key={doc.name} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-                            <div className="p-4">
-                                <div className="flex items-center gap-3 mb-3">
-                                    <img src={doc.avatar} alt="" className="w-11 h-11 rounded-xl" />
-                                    <div><div className="font-bold text-gray-900 text-sm">{doc.name}</div><div className="text-gray-500 text-xs">{doc.specialty}</div></div>
-                                </div>
-                                <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
-                                    <span>⭐ {doc.rating}</span><span>💲{doc.fee}/session</span><span>🕐 {doc.nextSlot}</span>
-                                </div>
-                                {bookingDoctor === doc.name ? (
-                                    <div>
-                                        <div className="text-xs font-bold text-gray-500 mb-2">Select time slot:</div>
-                                        <div className="grid grid-cols-3 gap-1.5 mb-3">
-                                            {timeSlots.map((slot) => (
-                                                <button key={slot} onClick={() => setBookedSlot((b) => ({ ...b, [doc.name]: slot }))} className={`text-xs py-1.5 rounded-lg font-semibold transition-all ${bookedSlot[doc.name] === slot ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-indigo-50"}`}>{slot}</button>
-                                            ))}
-                                        </div>
-                                        <div className="flex gap-2">
-                                            <button onClick={() => setBookingDoctor(null)} className="flex-1 border border-gray-200 text-gray-500 text-xs font-bold py-2 rounded-xl">Cancel</button>
-                                            <button disabled={!bookedSlot[doc.name]} onClick={() => setBookingDoctor(null)} className="flex-1 bg-indigo-600 text-white text-xs font-bold py-2 rounded-xl disabled:opacity-40 hover:bg-indigo-700 transition-colors">Confirm</button>
+                {doctors.length === 0 ? (
+                    <div className="text-center py-10 text-gray-400 text-sm">Loading doctors...</div>
+                ) : (
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {doctors.map((doc) => (
+                            <div key={doc.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                                <div className="p-4">
+                                    <div className="flex items-center gap-3 mb-3">
+                                        <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(doc.name)}&background=4f46e5&color=fff`} alt="" className="w-11 h-11 rounded-xl" />
+                                        <div>
+                                            <div className="font-bold text-gray-900 text-sm">{doc.name}</div>
+                                            <div className="text-gray-500 text-xs">{doc.specialization}</div>
                                         </div>
                                     </div>
-                                ) : (
-                                    <button onClick={() => setBookingDoctor(doc.name)} className="w-full bg-indigo-50 text-indigo-700 text-sm font-bold py-2.5 rounded-xl hover:bg-indigo-100 transition-colors">Book Appointment</button>
-                                )}
+
+                                    {bookingDoctor === doc.id ? (
+                                        <div>
+                                            <div className="mb-3">
+                                                <label className="text-xs font-bold text-gray-500 block mb-1">Select Date</label>
+                                                <input
+                                                    type="date"
+                                                    min={new Date().toISOString().split("T")[0]}
+                                                    value={selectedDate[doc.id] || ""}
+                                                    onChange={e => setSelectedDate(d => ({ ...d, [doc.id]: e.target.value }))}
+                                                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-400"
+                                                />
+                                            </div>
+                                            <div className="text-xs font-bold text-gray-500 mb-2">Select Time</div>
+                                            <div className="grid grid-cols-3 gap-1.5 mb-3">
+                                                {timeSlots.map((slot) => (
+                                                    <button key={slot} onClick={() => setBookedSlot(b => ({ ...b, [doc.id]: slot }))}
+                                                            className={`text-xs py-1.5 rounded-lg font-semibold transition-all ${bookedSlot[doc.id] === slot ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-indigo-50"}`}>
+                                                        {slot}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <button onClick={() => setBookingDoctor(null)} className="flex-1 border border-gray-200 text-gray-500 text-xs font-bold py-2 rounded-xl">Cancel</button>
+                                                <button
+                                                    disabled={!bookedSlot[doc.id] || !selectedDate[doc.id] || loading}
+                                                    onClick={() => handleConfirmBooking(doc)}
+                                                    className="flex-1 bg-indigo-600 text-white text-xs font-bold py-2 rounded-xl disabled:opacity-40 hover:bg-indigo-700 transition-colors">
+                                                    {loading ? "Booking..." : "Confirm"}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <button onClick={() => setBookingDoctor(doc.id)} className="w-full bg-indigo-50 text-indigo-700 text-sm font-bold py-2.5 rounded-xl hover:bg-indigo-100 transition-colors">
+                                            Book Appointment
+                                        </button>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-            <div>
-                <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Past Appointments</h3>
-                {APPOINTMENTS.filter((a) => a.status === "completed").map((apt) => (
-                    <div key={apt.id} className="bg-white rounded-2xl border border-gray-100 p-4 flex items-center gap-4 opacity-70">
-                        <img src={apt.avatar} alt="" className="w-10 h-10 rounded-xl flex-shrink-0" />
-                        <div className="flex-1"><div className="font-bold text-gray-700 text-sm">{apt.doctor}</div><div className="text-gray-400 text-xs">{apt.date} · {apt.time}</div></div>
-                        <span className="bg-gray-100 text-gray-500 text-xs font-bold px-2.5 py-1 rounded-full">Completed</span>
+                        ))}
                     </div>
-                ))}
+                )}
             </div>
         </div>
     );
