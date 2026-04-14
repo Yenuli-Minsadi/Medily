@@ -25,7 +25,7 @@ import type {
 // ── Consultation Modal ──────────────────────────────────────────────────────
 interface ConsultModalProps {
   onClose: () => void;
-  onGoToPrescriptions: (patientId: string, patientName: string) => void;
+  onGoToPrescriptions: (patientId: string, patientName: string, notes?: string) => void;
 }
 
 const ConsultationModal: React.FC<ConsultModalProps> = ({ onClose, onGoToPrescriptions }) => {
@@ -203,7 +203,7 @@ const ConsultationModal: React.FC<ConsultModalProps> = ({ onClose, onGoToPrescri
                   <h3 className="text-lg font-black text-gray-900">Ready to Write Prescription</h3>
                   <div className="flex gap-3">
                     <button onClick={handleNewConsult} className="flex-1 border border-gray-200 text-gray-600 rounded-xl py-3 font-bold text-sm hover:border-indigo-300 hover:text-indigo-600 transition-colors">New Consult</button>
-                    <button onClick={() => { onGoToPrescriptions(session.patientId, session.patientName); onClose(); }} className="flex-1 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl py-3 font-bold text-sm hover:opacity-90 transition-all shadow-lg shadow-indigo-200">Open Rx Form →</button>
+                    <button onClick={() => { onGoToPrescriptions(session.patientId, session.patientName, notes); onClose(); }} className="flex-1 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl py-3 font-bold text-sm hover:opacity-90 transition-all shadow-lg shadow-indigo-200">Open Rx Form →</button>
                   </div>
                 </div>
             )}
@@ -220,13 +220,19 @@ const ConsultationModal: React.FC<ConsultModalProps> = ({ onClose, onGoToPrescri
   );
 };
 
+interface PrescriptionFormProps {
+  prefillPatientId?: string;
+  prefillPatientName?: string;
+  prefillNotes?: string;
+}
+
 // ── Prescription Form ───────────────────────────────────────────────────────
-const PrescriptionForm: React.FC<PrescriptionFormProps> = ({ prefillPatientId, prefillPatientName }) => {
+const PrescriptionForm: React.FC<PrescriptionFormProps> = ({ prefillPatientId, prefillPatientName, prefillNotes}) => {
   const [patientName, setPatientName] = useState(prefillPatientName || "");
   const [patientId, setPatientId] = useState(prefillPatientId || "");
   const [appointmentId, setAppointmentId] = useState(""); // Needed for Backend
   const [diagnosis, setDiagnosis] = useState("");
-  const [notes, setNotes] = useState("");
+  const [notes, setNotes] = useState(prefillNotes || "");
   const [meds, setMeds] = useState([{ medicineName: "", dosage: "", duration: "", instructions: "" }]);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -462,7 +468,7 @@ const DoctorDashboard: React.FC = () => {
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [showConsult, setShowConsult] = useState(false);
-  const [rxPrefill, setRxPrefill] = useState<{ patientId: string; patientName: string } | null>(null);
+  const [rxPrefill, setRxPrefill] = useState<{ patientId: string; patientName: string; notes?: string} | null>(null);
   const navigate = useNavigate();
   const { logout } = useAuth();
 
@@ -486,8 +492,8 @@ const DoctorDashboard: React.FC = () => {
 
   const handleMenuClick = (id: MenuItem) => setActiveMenu(id);
 
-  const handleGoToPrescriptions = (patientId: string, patientName: string) => {
-    setRxPrefill({ patientId, patientName });
+  const handleGoToPrescriptions = (patientId: string, patientName: string, notes?: string) => {
+    setRxPrefill({ patientId, patientName, notes });
     setActiveMenu("prescriptions");
   };
 
@@ -656,7 +662,7 @@ const DoctorDashboard: React.FC = () => {
         return <FeedPage />;
 
       case "prescriptions":
-        return <PrescriptionForm prefillPatientId={rxPrefill?.patientId} prefillPatientName={rxPrefill?.patientName} />;
+        return <PrescriptionForm prefillPatientId={rxPrefill?.patientId} prefillPatientName={rxPrefill?.patientName} prefillNotes={rxPrefill?.notes} />;
 
       default:
         return (

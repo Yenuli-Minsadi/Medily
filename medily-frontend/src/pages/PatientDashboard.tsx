@@ -373,7 +373,8 @@ const AppointmentsPage: React.FC<{ onPay: (amt: number, desc: string) => void }>
         } finally {
             setLoading(false);
         }
-    }
+    };
+
     return (
         <div className="space-y-6">
             <div>
