@@ -230,6 +230,7 @@ interface PrescriptionFormProps {
 const PrescriptionForm: React.FC<PrescriptionFormProps> = ({ prefillPatientId, prefillPatientName, prefillNotes}) => {
   const [patientName, setPatientName] = useState(prefillPatientName || "");
   const [patientId, setPatientId] = useState(prefillPatientId || "");
+  const [issuedDate, setIssuedDate] = useState(new Date().toISOString().split("T")[0]);
   const [appointmentId, setAppointmentId] = useState(""); // Needed for Backend
   const [diagnosis, setDiagnosis] = useState("");
   const [notes, setNotes] = useState(prefillNotes || "");
@@ -252,6 +253,7 @@ const PrescriptionForm: React.FC<PrescriptionFormProps> = ({ prefillPatientId, p
       const token = localStorage.getItem("token");
       const payload = {
         patientId: parseInt(patientId),
+        issuedDate: issuedDate,
         appointmentId: parseInt(appointmentId),
         notes: notes,
         items: meds
@@ -297,6 +299,15 @@ const PrescriptionForm: React.FC<PrescriptionFormProps> = ({ prefillPatientId, p
             <div>
               <label className="text-xs font-semibold text-gray-500 block mb-1.5">Patient ID (DB)</label>
               <input value={patientId} readOnly className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-gray-50 font-mono" />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-gray-500 block mb-1.5">Issue Date</label>
+              <input
+                  type="date"
+                  value={issuedDate}
+                  onChange={e => setIssuedDate(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+              />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">

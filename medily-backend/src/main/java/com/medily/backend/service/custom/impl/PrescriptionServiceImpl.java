@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,6 +49,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
         prescription.setPatient(patient);
         prescription.setAppointment(appointment);
         prescription.setNotes(request.getNotes());
+        prescription.setIssuedDate(request.getIssuedDate());
 
         Prescription saved = prescriptionRepository.save(prescription);
 

@@ -1,5 +1,6 @@
 package com.medily.backend.service.custom;
 
+import com.medily.backend.dto.prescription.PrescriptionCreateRequestDTO;
 import com.medily.backend.dto.prescriptionrequest.PrescriptionRequestCreateDTO;
 import com.medily.backend.dto.prescriptionrequest.PrescriptionRequestResponseDTO;
 
