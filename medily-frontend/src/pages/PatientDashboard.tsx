@@ -237,9 +237,37 @@ const OverviewPage: React.FC<{ onNavigate: (m: MenuItem) => void; onPay: (amt: n
 };
 
 const PrescriptionsPage: React.FC<{ onPayPharmacy: (amt: number, desc: string) => void }> = ({ onPayPharmacy }) => {
-    const [selected, setSelected] = useState<string | null>(null);
+    const [selected, setSelected] = useState<number | null>(null);
     const [tab, setTab] = useState<"all" | "active" | "completed">("all");
-    const filtered = PRESCRIPTIONS.filter((p) => tab === "all" ? true : p.status === tab);
+    const [prescriptions, setPrescriptions] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchPrescriptions = async () => {
+            try {
+                const token = localStorage.getItem("token");
+                const res = await axios.get("http://localhost:8080/api/prescriptions/my", {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setPrescriptions(res.data.data);
+            } catch (err) {
+                console.error("Failed to load prescriptions"+ err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchPrescriptions();
+    }, []);
+
+    const filtered = prescriptions.filter((p) =>
+        tab === "all" ? true : p.status?.toLowerCase() === tab
+    );
+
+    if (loading) return (
+        <div className="flex items-center justify-center py-20">
+            <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+        </div>
+    );
 
     return (
         <div className="space-y-5">
@@ -249,57 +277,113 @@ const PrescriptionsPage: React.FC<{ onPayPharmacy: (amt: number, desc: string) =
             </div>
             <div className="flex gap-2">
                 {(["all", "active", "completed"] as const).map((t) => (
-                    <button key={t} onClick={() => setTab(t)} className={`px-4 py-2 rounded-xl text-sm font-bold capitalize transition-all ${tab === t ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200" : "bg-white text-gray-500 border border-gray-200 hover:border-indigo-200"}`}>{t}</button>
+                    <button key={t} onClick={() => setTab(t)}
+                            className={`px-4 py-2 rounded-xl text-sm font-bold capitalize transition-all ${tab === t ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200" : "bg-white text-gray-500 border border-gray-200 hover:border-indigo-200"}`}>
+                        {t}
+                    </button>
                 ))}
             </div>
-            <div className="space-y-4">
-                {filtered.map((rx) => (
-                    <div key={rx.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                        <div className="flex items-center gap-4 p-5 cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => setSelected(selected === rx.id ? null : rx.id)}>
-                            <img src={rx.doctorAvatar} alt="" className="w-12 h-12 rounded-2xl border-2 border-gray-100 flex-shrink-0" />
-                            <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                    <span className="font-bold text-gray-900">{rx.doctor}</span>
-                                    <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${rx.status === "active" ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-500"}`}>{rx.status.charAt(0).toUpperCase() + rx.status.slice(1)}</span>
+
+            {filtered.length === 0 ? (
+                <div className="text-center py-16 bg-white rounded-2xl border-2 border-dashed border-gray-200">
+                    <div className="text-5xl mb-4">📋</div>
+                    <h3 className="font-bold text-gray-900">No prescriptions found</h3>
+                    <p className="text-gray-500 text-sm mt-1">Your doctor's prescriptions will appear here</p>
+                </div>
+            ) : (
+                <div className="space-y-4">
+                    {filtered.map((rx) => (
+                        <div key={rx.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                            <div className="flex items-center gap-4 p-5 cursor-pointer hover:bg-gray-50 transition-colors"
+                                 onClick={() => setSelected(selected === rx.id ? null : rx.id)}>
+                                <div className="w-12 h-12 bg-indigo-100 rounded-2xl flex items-center justify-center text-xl flex-shrink-0">
+                                    👨‍⚕️
                                 </div>
-                                <div className="text-gray-500 text-xs mt-0.5">{rx.specialty}</div>
-                                <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-400">
-                                    <span>📋 {rx.id}</span><span>📅 {rx.date}</span>{rx.nextRefill && <span>🔄 Refill: {rx.nextRefill}</span>}
-                                </div>
-                            </div>
-                            <svg className={`w-5 h-5 text-gray-400 transition-transform ${selected === rx.id ? "rotate-180" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9" /></svg>
-                        </div>
-                        {selected === rx.id && (
-                            <div className="border-t border-gray-50 p-5 space-y-4 bg-gray-50/50">
-                                <div>
-                                    <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Prescribed Medications</h4>
-                                    <div className="space-y-2">
-                                        {rx.medications.map((med, i) => (
-                                            <div key={i} className="flex items-center gap-4 p-3 bg-white rounded-xl border border-gray-100">
-                                                <div className="w-9 h-9 bg-indigo-100 rounded-xl flex items-center justify-center flex-shrink-0"><span className="text-lg">💊</span></div>
-                                                <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 gap-1">
-                                                    <div><div className="text-xs text-gray-400">Medicine</div><div className="text-sm font-bold text-gray-900">{med.name} <span className="text-indigo-600">{med.dosage}</span></div></div>
-                                                    <div><div className="text-xs text-gray-400">Frequency</div><div className="text-sm font-semibold text-gray-700">{med.frequency}</div></div>
-                                                    <div><div className="text-xs text-gray-400">Duration</div><div className="text-sm font-semibold text-gray-700">{med.duration}</div></div>
-                                                    <div><div className="text-xs text-gray-400">Quantity</div><div className="text-sm font-semibold text-gray-700">{med.qty} units</div></div>
-                                                </div>
-                                            </div>
-                                        ))}
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                        <span className="font-bold text-gray-900">{rx.doctorName}</span>
+                                        <span className="bg-emerald-100 text-emerald-700 text-xs font-bold px-2.5 py-0.5 rounded-full">
+                                            Active
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-400">
+                                        <span>📋 RX-{rx.id}</span>
+                                        {rx.issuedDate && <span>📅 {rx.issuedDate}</span>}
+                                        <span>💊 {rx.items?.length ?? 0} medications</span>
                                     </div>
                                 </div>
-                                <div className="bg-amber-50 border border-amber-100 rounded-xl p-4">
-                                    <div className="flex items-center gap-2 mb-1.5"><span>📝</span><span className="text-xs font-bold text-amber-700 uppercase tracking-wider">Doctor's Notes</span></div>
-                                    <p className="text-sm text-amber-900">{rx.notes}</p>
-                                </div>
-                                <div className="flex gap-3 flex-wrap">
-                                    <button onClick={() => onPayPharmacy(rx.medications.reduce((a, m) => a + m.qty * 2, 0), `Medications from ${rx.id}`)} className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-indigo-700 transition-colors shadow-md shadow-indigo-200">Pay for Meds</button>
-                                    <button className="flex items-center gap-2 border border-gray-200 text-gray-600 px-4 py-2.5 rounded-xl text-sm font-bold hover:border-indigo-300 hover:text-indigo-600 transition-colors">Download PDF</button>
-                                </div>
+                                <svg className={`w-5 h-5 text-gray-400 transition-transform ${selected === rx.id ? "rotate-180" : ""}`}
+                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <polyline points="6 9 12 15 18 9" />
+                                </svg>
                             </div>
-                        )}
-                    </div>
-                ))}
-            </div>
+
+                            {selected === rx.id && (
+                                <div className="border-t border-gray-50 p-5 space-y-4 bg-gray-50/50">
+                                    {rx.items && rx.items.length > 0 && (
+                                        <div>
+                                            <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
+                                                Prescribed Medications
+                                            </h4>
+                                            <div className="space-y-2">
+                                                {rx.items.map((item: any, i: number) => (
+                                                    <div key={i} className="flex items-center gap-4 p-3 bg-white rounded-xl border border-gray-100">
+                                                        <div className="w-9 h-9 bg-indigo-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                                                            <span className="text-lg">💊</span>
+                                                        </div>
+                                                        <div className="flex-1 grid grid-cols-2 sm:grid-cols-3 gap-1">
+                                                            <div>
+                                                                <div className="text-xs text-gray-400">Medicine</div>
+                                                                <div className="text-sm font-bold text-gray-900">
+                                                                    {item.medicineName} <span className="text-indigo-600">{item.dosage}</span>
+                                                                </div>
+                                                            </div>
+                                                            <div>
+                                                                <div className="text-xs text-gray-400">Duration</div>
+                                                                <div className="text-sm font-semibold text-gray-700">{item.duration}</div>
+                                                            </div>
+                                                            {item.instructions && (
+                                                                <div>
+                                                                    <div className="text-xs text-gray-400">Instructions</div>
+                                                                    <div className="text-sm font-semibold text-gray-700">{item.instructions}</div>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {rx.notes && (
+                                        <div className="bg-amber-50 border border-amber-100 rounded-xl p-4">
+                                            <div className="flex items-center gap-2 mb-1.5">
+                                                <span>📝</span>
+                                                <span className="text-xs font-bold text-amber-700 uppercase tracking-wider">Doctor's Notes</span>
+                                            </div>
+                                            <p className="text-sm text-amber-900">{rx.notes}</p>
+                                        </div>
+                                    )}
+
+                                    <div className="flex gap-3 flex-wrap">
+                                        <button
+                                            onClick={() => onPayPharmacy(
+                                                (rx.items?.length ?? 1) * 25,
+                                                `Medications from RX-${rx.id}`
+                                            )}
+                                            className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-indigo-700 transition-colors shadow-md shadow-indigo-200">
+                                            Pay for Meds
+                                        </button>
+                                        <button className="flex items-center gap-2 border border-gray-200 text-gray-600 px-4 py-2.5 rounded-xl text-sm font-bold hover:border-indigo-300 hover:text-indigo-600 transition-colors">
+                                            Download PDF
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 };
