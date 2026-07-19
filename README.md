@@ -7,8 +7,7 @@
     <img src="https://img.shields.io/badge/TypeScript-5-3178C6?style=flat&logo=typescript" />
     <img src="https://img.shields.io/badge/Tailwind-3-06B6D4?style=flat&logo=tailwindcss" />
     <img src="https://img.shields.io/badge/Spring_Boot-3-6DB33F?style=flat&logo=springboot" />
-    <img src="https://img.shields.io/badge/Express-4-000000?style=flat&logo=express&logoColor=white" />
-    <img src="https://img.shields.io/badge/MongoDB-6-47A248?style=flat&logo=mongodb&logoColor=white" />
+    <img src="https://img.shields.io/badge/MySQL-8-4479A1?style=flat&logo=mysql&logoColor=white" />
   </p>
 </div>
 
