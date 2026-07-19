@@ -11,4 +11,5 @@ public interface PrescriptionRequestService {
     List<PrescriptionRequestResponseDTO> getRequestsByPatient(Integer patientUserId);
     List<PrescriptionRequestResponseDTO> getRequestsByPharmacy(Integer pharmacyUserId);
     PrescriptionRequestResponseDTO updateStatus(Integer requestId, String status);
+    public void respondToRequest(Integer requestId, boolean available);
 }

@@ -1,13 +1,12 @@
 export interface Pharmacy {
-  id: string;
+  pharmacyId: string;
   name: string;
-  address: string;
-  distance: string;
-  rating: number;
-  phone: string;
-  open: boolean;
-  availableMeds: string[];
-  matchScore: number;
+  city: string;
+  contactNumber: string;
+  latitude?: number;
+  longitude?: number;
+  distanceKm?: number;
+  avgResponseMinutes?: number;
 }
 
 export interface InventoryItem {

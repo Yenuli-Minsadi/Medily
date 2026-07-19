@@ -1,4 +1,4 @@
-//Patient → Pharmacy request (Uber-like flow)
+//Prescription Request from Patient to Pharmacy
 package com.medily.backend.dto.prescriptionrequest;
 
 import jakarta.validation.constraints.NotNull;
@@ -13,4 +13,5 @@ public class PrescriptionRequestCreateDTO {
 
     @NotNull
     private Integer pharmacyId;
+
 }

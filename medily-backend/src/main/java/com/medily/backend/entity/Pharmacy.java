@@ -29,4 +29,13 @@ public class Pharmacy {
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @Column(name = "latitude")
+    private Double latitude;
+
+    @Column(name = "longitude")
+    private Double longitude;
+
+    @Column(name = "avg_response_minutes")
+    private Integer avgResponseMinutes;
 }

@@ -40,7 +40,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setAppointmentDate(LocalDate.parse(request.getDate()));
         appointment.setAppointmentTime(LocalTime.parse(request.getTime()));
         appointment.setNotes(request.getNotes());
-        appointment.setStatus(Appointment.Status.valueOf("PENDING"));
+        appointment.setStatus(Appointment.Status.valueOf("BOOKED"));
 
         return mapToResponse(appointmentRepository.save(appointment));
     }
@@ -73,6 +73,11 @@ public class AppointmentServiceImpl implements AppointmentService {
     public List<AppointmentResponseDTO> getAllAppointments() {
         return appointmentRepository.findAll()
                 .stream().map(this::mapToResponse).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Appointment> findByDoctorUserId(Integer doctorUserId) {
+        return appointmentRepository.findByDoctor_User_UserId(doctorUserId);
     }
 
     private AppointmentResponseDTO mapToResponse(Appointment a) {

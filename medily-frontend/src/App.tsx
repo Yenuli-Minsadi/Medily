@@ -8,6 +8,10 @@ import PatientDashboard from "./pages/PatientDashboard";
 import PharmacyDashboard from "./pages/PharmacyDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
+import OAuth2RedirectHandler from "./pages/OAuth2RedirectHandler";
+import CompleteProfile from "./pages/CompleteProfile";
+import PendingVerification from "./pages/PendingVerification";
+import DoctorSubscription from "./pages/DoctorSubscription";
 
 function App() {
   return (
@@ -39,6 +43,12 @@ function App() {
             <AdminDashboard />
           </ProtectedRoute>
         } />
+
+        <Route path="/oauth2/callback" element={<OAuth2RedirectHandler />} />
+        <Route path="/complete-profile" element={<CompleteProfile />} />
+
+          <Route path="/pending-verification" element={<PendingVerification />} />
+          <Route path="/doctor-subscription" element={<DoctorSubscription />} />
       </Routes>
     </Router>
   );

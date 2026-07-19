@@ -21,6 +21,7 @@ import type {
   UserData,
   FeedPost,
 } from "../types";
+import { ChatUI } from "../components/ChatUI.tsx";
 
 // ── Consultation Modal ──────────────────────────────────────────────────────
 interface ConsultModalProps {
@@ -411,6 +412,50 @@ const FeedSidebar: React.FC = () => {
   );
 };
 
+const MasonryGrid: React.FC<{ children: React.ReactNode; gap?: number }> = ({ children, gap = 14 }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const columns = useMasonryColumns(containerRef);
+
+  return (
+      <div
+          ref={containerRef}
+          className="grid"
+          style={{
+            gridTemplateColumns: `repeat(${columns}, 1fr)`,
+            gap: `${gap}px`,
+            alignItems: 'start'
+          }}
+      >
+        {children}
+      </div>
+  );
+};
+
+const PinCard: React.FC<{ post: FeedPost; onLike: (id: number) => void; onBookmark: (id: number) => void }> = ({ post, onLike, onBookmark }) => (
+    <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all group mb-4">
+      {post.image && <img src={post.image} alt="" className="w-full h-auto object-cover" />}
+      <div className="p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <img src={post.author.avatar} alt="" className="w-6 h-6 rounded-full" />
+          <span className="text-xs font-bold text-gray-700">{post.author.name}</span>
+        </div>
+        <p className="text-gray-800 text-sm leading-relaxed mb-4" style={{fontFamily: "Georgia, serif"}}>
+          {post.content}
+        </p>
+        <div className="flex items-center justify-between border-t border-gray-50 pt-3">
+          <div className="flex gap-3">
+            <button onClick={() => onLike(post.id)} className={`text-sm flex items-center gap-1 ${post.liked ? "text-red-500" : "text-gray-400"}`}>
+              {post.liked ? "❤️" : "🤍"} <span className="text-xs font-bold">{post.likes}</span>
+            </button>
+          </div>
+          <button onClick={() => onBookmark(post.id)} className={post.bookmarked ? "text-indigo-600" : "text-gray-400"}>
+            {post.bookmarked ? "🔖" : "📑"}
+          </button>
+        </div>
+      </div>
+    </div>
+);
+
 const FeedPage: React.FC = () => {
   const [posts, setPosts] = useState<FeedPost[]>(INITIAL_POSTS);
   const [activeCategory, setActiveCategory] = useState("All");
@@ -470,6 +515,119 @@ const FeedPage: React.FC = () => {
         </div>
       </div>
   );
+
+};
+
+const DoctorAppointmentsPage: React.FC = () => {
+  const [appointments, setAppointments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<"ALL" | "BOOKED" | "COMPLETED" | "CANCELLED">("ALL");
+
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await axios.get("http://localhost:8080/api/doctors/my-appointments", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setAppointments(res.data.data);
+      } catch (err) {
+        console.error("Failed to load doctor appointments", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAppointments();
+  }, []);
+
+  const filtered = appointments.filter(apt =>
+      filter === "ALL" ? true : apt.status === filter
+  );
+
+  if (loading) return (
+      <div className="flex items-center justify-center py-20">
+        <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+  );
+
+  return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-black text-gray-900">Appointments</h1>
+          <p className="text-gray-500 text-sm mt-0.5">Patients who have booked with you</p>
+        </div>
+
+        {/* Filter tabs */}
+        <div className="flex gap-2 flex-wrap">
+          {(["ALL", "BOOKED", "COMPLETED", "CANCELLED"] as const).map(f => (
+              <button key={f} onClick={() => setFilter(f)}
+                      className={`px-4 py-2 rounded-xl text-sm font-bold capitalize transition-all ${
+                          filter === f
+                              ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200"
+                              : "bg-white text-gray-500 border border-gray-200 hover:border-indigo-200"
+                      }`}>
+                {f.charAt(0) + f.slice(1).toLowerCase()}
+              </button>
+          ))}
+        </div>
+
+        {/* Summary cards */}
+        <div className="grid grid-cols-3 gap-4">
+          {[
+            { label: "Total", value: appointments.length, color: "text-indigo-600 bg-indigo-50" },
+            { label: "Booked", value: appointments.filter(a => a.status === "BOOKED").length, color: "text-blue-600 bg-blue-50" },
+            { label: "Completed", value: appointments.filter(a => a.status === "COMPLETED").length, color: "text-emerald-600 bg-emerald-50" },
+          ].map(s => (
+              <div key={s.label} className={`${s.color} rounded-2xl p-4`}>
+                <div className={`text-2xl font-black`}>{s.value}</div>
+                <div className="text-xs font-medium opacity-70 mt-0.5">{s.label}</div>
+              </div>
+          ))}
+        </div>
+
+        {/* Appointment list */}
+        {filtered.length === 0 ? (
+            <div className="text-center py-16 bg-white rounded-2xl border-2 border-dashed border-gray-200">
+              <div className="text-5xl mb-4">📅</div>
+              <h3 className="font-bold text-gray-900">No appointments found</h3>
+              <p className="text-gray-500 text-sm mt-1">Patient bookings will appear here</p>
+            </div>
+        ) : (
+            <div className="space-y-3">
+              {filtered.map(apt => (
+                  <div key={apt.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
+                    {/* Date badge */}
+                    <div className="bg-indigo-100 rounded-xl px-3 py-2 text-center flex-shrink-0 min-w-[56px]">
+                      <div className="text-indigo-700 font-black text-sm">{apt.date}</div>
+                      <div className="text-indigo-500 text-xs">{apt.time}</div>
+                    </div>
+
+                    {/* Patient info */}
+                    <img
+                        src={`https://ui-avatars.com/api/?name=${encodeURIComponent(apt.patient?.name ?? "P")}&background=4f46e5&color=fff`}
+                        alt=""
+                        className="w-10 h-10 rounded-xl flex-shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="font-bold text-gray-900">{apt.patient?.name ?? "Unknown Patient"}</div>
+                      <div className="text-gray-500 text-xs mt-0.5">
+                        {apt.notes ? apt.notes : "No notes"} · ID: {apt.patient?.id}
+                      </div>
+                    </div>
+
+                    {/* Status badge */}
+                    <span className={`text-xs font-bold px-2.5 py-1 rounded-full flex-shrink-0 ${
+                        apt.status === "BOOKED"     ? "bg-blue-100 text-blue-700" :
+                            apt.status === "COMPLETED"  ? "bg-emerald-100 text-emerald-700" :
+                                apt.status === "CANCELLED"  ? "bg-red-100 text-red-600" :
+                                    "bg-amber-100 text-amber-700"
+                    }`}>{apt.status}</span>
+                  </div>
+              ))}
+            </div>
+        )}
+      </div>
+  );
 };
 
 // ── Main Dashboard ──────────────────────────────────────────────────────────
@@ -482,20 +640,43 @@ const DoctorDashboard: React.FC = () => {
   const [rxPrefill, setRxPrefill] = useState<{ patientId: string; patientName: string; notes?: string} | null>(null);
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const [doctorUserId, setDoctorUserId] = useState<number | null>(null);
+  const [chatTargetPatientId, setChatTargetPatientId] = useState<number | null>(null);
 
   // ── FIXED: Read from correct localStorage keys ──
+  // useEffect(() => {
+  //   const token = localStorage.getItem("token");
+  //   const role = localStorage.getItem("role");
+  //   const name = localStorage.getItem("name");
+  //   const storedUserId = localStorage.getItem("userId");
+  //
+  //   if (token && role === "DOCTOR") {
+  //     setUser({ name: name ?? "Doctor", role: role, email: "", isAuthenticated: true });
+  //     if (storedUserId) setDoctorUserId(parseInt(storedUserId));
+  //   } else {
+  //     navigate("/login");
+  //   }
+  // }, []);
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     const role = localStorage.getItem("role");
     const name = localStorage.getItem("name");
+    const storedUserId = localStorage.getItem("userId");
+    const accountStatus = localStorage.getItem("accountStatus");
+    const isSubscribed = localStorage.getItem("isSubscribed");
 
     if (token && role === "DOCTOR") {
-      setUser({
-        name: name ?? "Doctor",
-        role: role,
-        email: "",
-        isAuthenticated: true,
-      });
+      if (accountStatus === "PENDING") {
+        navigate("/pending-verification");
+        return;
+      }
+      if (isSubscribed !== "true") {
+        navigate("/doctor-subscription");
+        return;
+      }
+      setUser({ name: name ?? "Doctor", role, email: "", isAuthenticated: true });
+      if (storedUserId) setDoctorUserId(parseInt(storedUserId));
     } else {
       navigate("/login");
     }
@@ -631,7 +812,14 @@ const DoctorDashboard: React.FC = () => {
                         { name:"David Brown", msg:"Can I reschedule tomorrow's appointment?", time:"15m ago", avatar:"https://ui-avatars.com/api/?name=David+Brown&background=8b5cf6&color=fff", online:false, unread:true },
                         { name:"Lisa Garcia", msg:"Feeling much better now, thanks!", time:"1h ago", avatar:"https://ui-avatars.com/api/?name=Lisa+Garcia&background=10b981&color=fff", online:false, unread:false },
                       ].map(m => (
-                          <div key={m.name} className={`flex items-center gap-3 px-5 py-3.5 hover:bg-gray-50 cursor-pointer transition-colors ${m.unread ? "bg-indigo-50/30" : ""}`}>
+                          // In the messages preview list in overview, update onClick:
+                          <div key={m.name}
+                               onClick={() => {
+                                 // You'd need the patient's userId here
+                                 // For now just navigate to messages
+                                 handleMenuClick("messages");
+                               }}
+                               className={`flex items-center gap-3 px-5 py-3.5 hover:bg-gray-50 cursor-pointer...`}>
                             <div className="relative flex-shrink-0">
                               <img src={m.avatar} alt="" className="w-9 h-9 rounded-xl" />
                               {m.online && <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 rounded-full border-2 border-white" />}
@@ -675,11 +863,26 @@ const DoctorDashboard: React.FC = () => {
       case "prescriptions":
         return <PrescriptionForm prefillPatientId={rxPrefill?.patientId} prefillPatientName={rxPrefill?.patientName} prefillNotes={rxPrefill?.notes} />;
 
+      // case "messages":
+      //   return <ChatUI userId={doctorUserId} userRole="DOCTOR" userName={user?.name ?? "Doctor"} />;
+      case "messages":
+        return (
+            <ChatUI
+                userId={doctorUserId}
+                userRole="DOCTOR"
+                userName={user?.name ?? "Doctor"}
+                initialRoomParticipantId={chatTargetPatientId ?? undefined}
+            />
+        );
+
+      case "appointments":
+        return <DoctorAppointmentsPage />;
+
       default:
         return (
             <div className="flex flex-col items-center justify-center py-24 text-center">
               <div className="text-6xl mb-4">
-                {activeMenu === "saved" ? "🔖" : activeMenu === "appointments" ? "📅" : activeMenu === "patients" ? "👥" : activeMenu === "messages" ? "💬" : "📊"}
+                {activeMenu === "saved" ? "🔖" : activeMenu === "appointments" ? "📅" : activeMenu === "patients" ? "👥" : "📊"}
               </div>
               <h3 className="text-xl font-black text-gray-900">{doctorPageTitles[activeMenu].title}</h3>
               <p className="text-gray-500 text-sm mt-2">{doctorPageTitles[activeMenu].subtitle}</p>

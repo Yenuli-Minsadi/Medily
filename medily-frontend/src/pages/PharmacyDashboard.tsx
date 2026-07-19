@@ -8,6 +8,8 @@ import { INVENTORY } from "../constants/data/mockInventory";
 import { PHARMACY_PRESCRIPTIONS as PRESCRIPTIONS } from "../constants/data/mockPrescriptions";
 import { menuItems } from "../constants/data/mockPharmacies";
 import type { MenuItem } from "../constants/data/mockPharmacies";
+import axios from "axios";
+import {ChatUI} from "../components/ChatUI.tsx";
 
 type Prescription = PharmacyPrescription;
 
@@ -367,6 +369,10 @@ const PlaceholderPage: React.FC<{ icon: string; title: string; desc: string }> =
     <div className="flex items-center justify-center min-h-80"><div className="text-center"><div className="text-6xl mb-4">{icon}</div><h2 className="text-xl font-bold text-slate-700">{title}</h2><p className="text-slate-400 mt-2">{desc}</p></div></div>
 );
 
+const MessagesPage: React.FC<{ userId: number | null; userName: string }> = ({ userId, userName }) => {
+    return <ChatUI userId={userId} userRole="PATIENT" userName={userName} />;
+};
+
 // ── Main ──────────────────────────────────────────────────────────────────────
 const PharmacistDashboard: React.FC = () => {
   const [userName, setUserName]           = useState("Pharmacist");
@@ -378,27 +384,118 @@ const PharmacistDashboard: React.FC = () => {
   const [searchQuery, setSearchQuery]     = useState("");
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const [pharmacyUserId, setPharmacyUserId] = useState<number | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     const role  = localStorage.getItem("role");
     const name  = localStorage.getItem("name");
+    const storedUserId = localStorage.getItem("userId");
+
+// Check for presence of token AND correct role
     if (token && role === "PHARMACIST") {
+      // 1. Set the display name
       setUserName(name ?? "Pharmacist");
+
+      // 2. Set the User ID (ensure it is saved for ChatUI)
+      if (storedUserId) {
+        setPharmacyUserId((parseInt(storedUserId)));
+      }
+
+      // 3. Trigger initial data load from backend
+      fetchRequests(token);
     } else {
+      // Redirect if credentials or role are invalid
       navigate("/login");
     }
-  }, []);
+  }, [navigate]);
 
-  const handleAccept = (id: string) =>
-      setPrescriptions(prev => prev.map(p => p.id === id ? { ...p, status: "accepted" as PrescriptionStatus } : p));
-  const handleReject = (id: string) =>
-      setPrescriptions(prev => prev.map(p => p.id === id ? { ...p, status: "rejected" as PrescriptionStatus } : p));
+  const fetchRequests = async (token: string) => {
+    try {
+      const res = await axios.get("http://localhost:8080/api/prescription-requests/pharmacy", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      // Map backend response to the PharmacyPrescription shape the UI expects
+      const mapped = res.data.data.map((r: any) => ({
+        id: `RX-${r.id}`,
+        requestId: r.id,
+        patientName: r.patientName,
+        patientAge: 0,
+        patientAvatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(r.patientName)}&background=4f46e5&color=fff`,
+        doctorName: r.doctorName,
+        doctorSpecialty: "",
+        medications: r.items?.map((item: any) => ({
+          name: item.medicineName,
+          dosage: item.dosage,
+          qty: 1,
+          days: item.duration
+        })) ?? [],
+        status: r.status?.toLowerCase() === "pending" ? "pending" :
+            r.status?.toLowerCase() === "available" ? "accepted" :
+                r.status?.toLowerCase() === "not_available" ? "rejected" : "pending",
+        notes: r.notes || "",
+        issuedAt: r.issuedDate ?? "",
+        expiresAt: "",
+        urgent: false,
+        distance: ""
+      }));
+      setPrescriptions(mapped);
+    } catch (err) {
+      console.error("Failed to load prescription requests", err);
+    }
+  };
+
+  // const handleAccept = (id: string) =>
+  //     setPrescriptions(prev => prev.map(p => p.id === id ? { ...p, status: "accepted" as PrescriptionStatus } : p));
+  // const handleReject = (id: string) =>
+  //     setPrescriptions(prev => prev.map(p => p.id === id ? { ...p, status: "rejected" as PrescriptionStatus } : p));
+
+  const handleAccept = async (id: string) => {
+    try {
+      const token = localStorage.getItem("token");
+      // Find the actual numeric requestId from prescriptions state
+      const prescription = prescriptions.find(p => p.id === id);
+      const requestId = prescription?.requestId;
+      await axios.patch(
+          `http://localhost:8080/api/prescription-requests/${requestId}/status?status=AVAILABLE`,
+          {},
+          { headers: { Authorization: `Bearer ${token}` } }
+      );
+      // Only update the one that was accepted
+      setPrescriptions(prev =>
+          prev.map(p => p.id === id ? { ...p, status: "accepted" as PrescriptionStatus } : p)
+      );
+    } catch (err) {
+      console.error("Failed to accept request", err);
+      alert("Failed to accept. Please try again.");
+    }
+  };
+
+  const handleReject = async (id: string) => {
+    try {
+      const token = localStorage.getItem("token");
+      const prescription = prescriptions.find(p => p.id === id);
+      const requestId = prescription?.requestId;
+      await axios.patch(
+          `http://localhost:8080/api/prescription-requests/${requestId}/status?status=NOT_AVAILABLE`,
+          {},
+          { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setPrescriptions(prev =>
+          prev.map(p => p.id === id ? { ...p, status: "rejected" as PrescriptionStatus } : p)
+      );
+    } catch (err) {
+      console.error("Failed to reject request", err);
+      alert("Failed to reject. Please try again.");
+    }
+  };
 
   const pageTitles: Record<MenuItem, string> = {
     overview:"Overview", prescriptions:"Prescriptions", nearby:"Nearby",
     inventory:"Inventory", patients:"Patients", orders:"Orders",
     analytics:"Analytics", settings:"Settings",
+    messages: "Messages"
+
   };
 
   const renderContent = () => {
@@ -410,6 +507,7 @@ const PharmacistDashboard: React.FC = () => {
       case "analytics":     return <AnalyticsPage />;
       case "patients":      return <PlaceholderPage icon="👥" title="Patients" desc="View patient medication history" />;
       case "orders":        return <PlaceholderPage icon="🛒" title="Orders" desc="Manage supplier orders" />;
+      case "messages":      return <ChatUI userId={pharmacyUserId} userRole="PHARMACY" userName={userName} />;
       case "settings":      return <PlaceholderPage icon="⚙️" title="Settings" desc="Configure pharmacy preferences" />;
       default: return null;
     }

@@ -14,4 +14,7 @@ public class RegisterRequestDTO {
     private String password;
     @NotBlank
     private String role;// Admin, Doctor, Patient, Pharmacist
+
+    private String specialization;
+    private String medicalRegNumber;
 }

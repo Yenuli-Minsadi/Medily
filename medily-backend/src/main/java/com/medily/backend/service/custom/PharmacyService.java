@@ -9,4 +9,5 @@ public interface PharmacyService {
     PharmacyResponseDTO completeProfile(Integer userId, PharmacyRequestDTO request);
     PharmacyResponseDTO getPharmacyByUserId(Integer userId);
     List<PharmacyResponseDTO> getAllPharmacies();
+    public List<PharmacyResponseDTO> getNearbyPharmaciesSorted(Double patientLat, Double patientLng, Integer maxResponseMinutes);
 }

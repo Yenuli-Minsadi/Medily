@@ -14,6 +14,9 @@ export interface SignUpFormData {
   password: string;
   confirmPassword: string;
   terms: boolean;
+  specialization?: string;        // ADD
+  medicalRegNumber?: string;       // ADD
+  pharmacyLicenseNumber?: string;
 }
 
 export interface FormErrors {
@@ -25,16 +28,26 @@ export interface LoginRequest {
   password: string;
 }
 
-export interface LoginResponse {
+// UPDATE - this is what the backend actually returns now
+export interface AuthResponse {
   token: string;
-  user: UserData;
+  role: string;
+  name: string;
+  userId: number;
+  accountStatus: string;   // ADD
+  isSubscribed: boolean;   // ADD
+  email?: string;          // ADD
 }
 
+// Keep for backwards compat but point to AuthResponse
+export interface LoginResponse extends AuthResponse {}
+
 export interface RegisterRequest {
-  firstName: string;
-  lastName: string;
+  name: string;
   email: string;
-  phone: string;
-  userType: string;
   password: string;
+  role: string;
+  specialization?: string;        // ADD
+  medicalRegNumber?: string;       // ADD
+  pharmacyLicenseNumber?: string;  // ADD
 }

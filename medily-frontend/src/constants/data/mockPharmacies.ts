@@ -53,7 +53,7 @@ export const PHARMACIES: Pharmacy[] = [
   },
 ];
 
-export type MenuItem = "overview" | "prescriptions" | "nearby" | "inventory" | "patients" | "orders" | "analytics" | "settings";
+export type MenuItem = "overview" | "prescriptions" | "nearby" | "inventory" | "patients" | "orders" | "analytics" | "messages" | "settings";
 
 export const menuItems: {
   id: MenuItem;
@@ -68,5 +68,6 @@ export const menuItems: {
   { id: "patients", label: "Patients", icon: "👥" },
   { id: "orders", label: "Orders", icon: "🛒" },
   { id: "analytics", label: "Analytics", icon: "📊" },
+  { id: "messages", label: "Messages", icon: "💬" },
   { id: "settings", label: "Settings", icon: "⚙️" },
 ];
