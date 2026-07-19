@@ -32,7 +32,7 @@ public class User {
     @Column(name = "address", length = 255)
     private String address;
 
-    @Column(name = "password_hash", nullable = false, length = 255)
+    @Column(name = "password_hash", length = 255)
     private String passwordHash;
 
     @Enumerated(EnumType.STRING)
@@ -47,6 +47,19 @@ public class User {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "account_status")
+    private AccountStatus accountStatus = AccountStatus.ACTIVE; // default for non-doctors
+
+    @Column(name = "specialization")
+    private String specialization;
+
+    @Column(name = "medical_reg_number")
+    private String medicalRegNumber;
+
+    @Column(name = "is_subscribed")
+    private Boolean isSubscribed = false;
+
     public enum Role {
         PATIENT, DOCTOR, PHARMACIST, ADMIN
     }
@@ -54,4 +67,12 @@ public class User {
     public enum Status {
         ACTIVE, INACTIVE
     }
+
+    public enum AccountStatus {
+        PENDING,
+        ACTIVE,
+        REJECTED
+    }
+
+
 }

@@ -2,6 +2,7 @@ package com.medily.backend.service.custom;
 
 import com.medily.backend.dto.appointment.AppointmentRequestDTO;
 import com.medily.backend.dto.appointment.AppointmentResponseDTO;
+import com.medily.backend.entity.Appointment;
 
 import java.util.List;
 
@@ -11,4 +12,5 @@ public interface AppointmentService {
     List<AppointmentResponseDTO> getAppointmentsByDoctor(Integer doctorUserId);
     AppointmentResponseDTO updateStatus(Integer appointmentId, String status);
     List<AppointmentResponseDTO> getAllAppointments();
+    List<Appointment> findByDoctorUserId(Integer doctorUserId);
 }

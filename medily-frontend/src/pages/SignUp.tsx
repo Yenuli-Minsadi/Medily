@@ -6,7 +6,6 @@ import { saveAuth, redirectByRole } from "../lib/auth";
 import type { SignUpFormData } from "../types/Auth";
 
 type FormErrors = Record<string, string>;
-
 const roleOptions = [
     {
         value: "patient",
@@ -64,7 +63,11 @@ const SignUp: React.FC = () => {
         password: "",
         confirmPassword: "",
         terms: false,
+        // Added these to original state
+        specialization: "",
+        medicalRegNumber: "",
     });
+
     const [errors, setErrors] = useState<FormErrors>({});
     const [isLoading, setIsLoading] = useState(false);
     const [currentStep, setCurrentStep] = useState(1);
@@ -107,9 +110,11 @@ const SignUp: React.FC = () => {
         const checked = (e.target as HTMLInputElement).checked;
         const fieldValue = type === "checkbox" ? checked : value;
         setFormData((prev) => ({ ...prev, [name]: fieldValue }));
-        if (value) {
+        if (value && name !== "specialization" && name !== "medicalRegNumber") {
             const error = validateField(name, fieldValue);
             setErrors((prev) => ({ ...prev, [name]: error }));
+        } else {
+            setErrors((prev) => ({ ...prev, [name]: "" }));
         }
     };
 
@@ -117,13 +122,9 @@ const SignUp: React.FC = () => {
         e.preventDefault();
 
         const newErrors: FormErrors = {};
-        (Object.keys(formData) as Array<keyof SignUpFormData>).forEach((key) => {
-            if (key !== "terms" && typeof formData[key] === "string") {
-                const error = validateField(key, formData[key] as string);
-                if (error) newErrors[key] = error;
-            }
-        });
         if (!formData.terms) newErrors.terms = "You must agree to the terms";
+        if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = "Passwords do not match";
+
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
             return;
@@ -139,13 +140,26 @@ const SignUp: React.FC = () => {
 
         try {
             const data = await registerApi({
-                name:     `${formData.firstName} ${formData.lastName}`,
-                email:    formData.email,
-                password: formData.password,
-                role:     roleMap[formData.userType] ?? "PATIENT",
+                name:   formData.userType === "professional"
+                        ? (formData as any).pharmacyName
+                        :`${formData.firstName} ${formData.lastName}`,
+                email:            formData.email,
+                password:         formData.password,
+                role:             roleMap[formData.userType] ?? "PATIENT",
+                specialization:   formData.specialization,
+                medicalRegNumber: formData.medicalRegNumber,
+                pharmacyLicenseNumber: (formData as any).pharmacyLicenseNumber,
             });
+
             saveAuth(data);
-            navigate(redirectByRole(data.role));
+
+            // Redirect based on role AND account status
+            if (data.role === "DOCTOR" || data.role === "PHARMACIST") {
+                navigate("/pending-verification");
+            } else {
+                navigate(redirectByRole(data.role));
+            }
+
         } catch (err: any) {
             setErrors({
                 confirmPassword: err.response?.data?.message ?? "Registration failed. Please try again.",
@@ -157,15 +171,45 @@ const SignUp: React.FC = () => {
 
     const goNext = () => {
         if (currentStep === 1) {
-            if (!formData.userType) { setErrors({ userType: "Please select your role to continue" }); return; }
+            if (!formData.userType) {
+                setErrors({ userType: "Please select your role to continue" });
+                return;
+            }
+
+            if (formData.userType === "doctor") {
+                if (!formData.specialization || !formData.medicalRegNumber) {
+                    setErrors({ userType: "Specialization and Registration Number are required for doctors" });
+                    return;
+                }
+            }
+
+            if (formData.userType === "professional") {
+                if (!(formData as any).pharmacyLicenseNumber) {
+                    setErrors({ userType: "Pharmacy license number is required" });
+                    return;
+                }
+            }
             setCurrentStep(2); setErrors({});
         } else if (currentStep === 2) {
             const errs: FormErrors = {};
-            (["firstName", "lastName", "email", "phone"] as Array<keyof SignUpFormData>).forEach((f) => {
-                const val = formData[f] as string;
-                const err = validateField(f, val);
-                if (err || !val) errs[f] = err || "This field is required";
-            });
+            // (["firstName", "lastName", "email", "phone"] as Array<keyof SignUpFormData>).forEach((f) => {
+            //     const val = formData[f] as string;
+            //     const err = validateField(f, val);
+            //     if (err || !val) errs[f] = err || "This field is required";
+            // });
+            if (formData.userType === "professional") {
+                // Pharmacy validation
+                if (!(formData as any).pharmacyName) errs.pharmacyName = "Pharmacy name is required";
+                if (!formData.firstName) errs.firstName = "Owner name is required";
+                if (!formData.email) errs.email = "Email is required";
+            } else {
+                // Patient/Doctor validation
+                (["firstName", "lastName", "email", "phone"] as Array<keyof SignUpFormData>).forEach((f) => {
+                    const val = formData[f] as string;
+                    const err = validateField(f, val);
+                    if (err || !val) errs[f] = err || "This field is required";
+                });
+            }
             if (Object.keys(errs).length === 0) { setCurrentStep(3); setErrors({}); }
             else setErrors(errs);
         }
@@ -189,15 +233,16 @@ const SignUp: React.FC = () => {
 
     const stepLabels = ["Your Role", "Personal Info", "Account Setup"];
     const stepHeaders = [
-        { title: "Who are you joining as?", sub: "Choose your role so we can tailor your experience from day one" },
-        { title: "Tell us about yourself", sub: "Your details help us personalise your healthcare profile" },
-        { title: "Secure your account", sub: "Set up a strong password to protect your medical data" },
+        { title: "Who are you joining as?", sub: "Choose your role so we can tailor your experience" },
+        { title: "Tell us about yourself", sub: "Your details help us personalise your profile" },
+        { title: "Secure your account", sub: "Set up a strong password to protect your data" },
     ];
     const selectedRole = roleOptions.find((r) => r.value === formData.userType);
     const progressWidth = currentStep === 1 ? "33%" : currentStep === 2 ? "66%" : "100%";
 
     return (
         <div className="min-h-screen flex items-center justify-center p-8 relative overflow-hidden" style={{ background: "#0a1929", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
+            {/* Background Decorations */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute w-[600px] h-[600px] rounded-full opacity-25 -top-[200px] -right-[200px]"
                      style={{ filter: "blur(80px)", background: "radial-gradient(circle, #c5a3e0 0%, transparent 70%)" }} />
@@ -232,7 +277,7 @@ const SignUp: React.FC = () => {
                         <span className="text-[26px] font-bold" style={{ color: "#0f1c2e" }}>Medily</span>
                     </div>
 
-                    {/* Progress */}
+                    {/* Progress Bar */}
                     <div className="mb-8">
                         <div className="flex gap-1 mb-3.5">
                             {[1, 2, 3].map((step) => {
@@ -249,8 +294,8 @@ const SignUp: React.FC = () => {
                                             {isDone ? "✓" : step}
                                         </div>
                                         <span className={`text-[11px] whitespace-nowrap ${isActive ? "font-bold text-[#1a1a1a]" : "font-medium text-[#9ca3af]"}`}>
-                      {stepLabels[step - 1]}
-                    </span>
+                                            {stepLabels[step - 1]}
+                                        </span>
                                     </div>
                                 );
                             })}
@@ -267,11 +312,6 @@ const SignUp: React.FC = () => {
 
                     {/* Header */}
                     <div className="mb-7">
-                        <div className="flex justify-center mb-4">
-                            <div className="inline-flex items-center gap-1.5 px-4 py-[7px] rounded-3xl text-xs font-semibold" style={{ background: "linear-gradient(90deg,#e8d5f2,#b8e0e8)", color: "#0f1c2e" }}>
-                                ★ Trusted by 10,000+ healthcare professionals
-                            </div>
-                        </div>
                         <h1 className="text-[26px] font-bold leading-tight mb-1.5" style={{ color: "#1a1a1a" }}>
                             {stepHeaders[currentStep - 1].title}
                         </h1>
@@ -283,7 +323,7 @@ const SignUp: React.FC = () => {
                     <form onSubmit={handleSubmit}>
                         <AnimatePresence mode="wait">
 
-                            {/* STEP 1 */}
+                            {/* STEP 1: Role Selection & Doctor Details */}
                             {currentStep === 1 && (
                                 <motion.div key="s1" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.28 }}>
                                     <div className="flex flex-col gap-2.5">
@@ -305,21 +345,83 @@ const SignUp: React.FC = () => {
                                                         <span className="block text-sm font-bold mb-0.5" style={{ color: "#1a1a1a" }}>{role.label}</span>
                                                         <span className="block text-xs text-gray-500">{role.description}</span>
                                                     </div>
-                                                    <div className="w-[22px] h-[22px] flex-shrink-0 rounded-full flex items-center justify-center"
-                                                         style={{
-                                                             border: isSelected ? "none" : "2px solid #e5e7eb",
-                                                             background: isSelected ? "linear-gradient(135deg,#7bc5d3,#c5a3e0)" : "transparent",
-                                                         }}>
-                                                        {isSelected && (
-                                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-                                                                <polyline points="20 6 9 17 4 12" />
-                                                            </svg>
-                                                        )}
+                                                    <div className={`w-[22px] h-[22px] flex-shrink-0 rounded-full flex items-center justify-center ${isSelected ? "bg-gradient-to-br from-[#7bc5d3] to-[#c5a3e0]" : "border-2 border-gray-200"}`}>
+                                                        {isSelected && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5"><polyline points="20 6 9 17 4 12" /></svg>}
                                                     </div>
                                                 </div>
                                             );
                                         })}
                                     </div>
+
+                                    {/* DOCTOR FIELDS - INJECTED INTO STEP 1 */}
+                                    {formData.userType === "doctor" && (
+                                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mt-5 space-y-4 pt-5 border-t border-gray-100">
+                                            <div className="bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3 text-[11px] text-indigo-700 font-medium">
+                                                🏥 Doctor accounts require manual verification before clinical access is granted.
+                                            </div>
+                                            <div>
+                                                <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider block mb-1.5">Specialization</label>
+                                                <select name="specialization" value={formData.specialization} onChange={handleChange}
+                                                        className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-indigo-400 bg-white">
+                                                    <option value="">Select specialization</option>
+                                                    <option>Cardiologist</option><option>Dermatologist</option><option>Neurologist</option>
+                                                    <option>Pediatrician</option><option>Psychiatrist</option><option>General Practitioner</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider block mb-1.5">Medical Registration Number</label>
+                                                <input type="text" name="medicalRegNumber" value={formData.medicalRegNumber} onChange={handleChange} placeholder="e.g. SLMC-12345"
+                                                       className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-indigo-400 font-sans" />
+                                            </div>
+                                        </motion.div>
+                                    )}
+
+                                    {formData.userType === "professional" && (
+                                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mt-5 space-y-4 pt-5 border-t border-gray-100">
+                                            <div className="bg-violet-50 border border-violet-100 rounded-xl px-4 py-3 text-[11px] text-violet-700 font-medium">
+                                                💊 Pharmacy accounts require license verification before access is granted.
+                                            </div>
+                                            <div>
+                                                <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider block mb-1.5">
+                                                    Pharmacy Name
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    name="pharmacyName"
+                                                    value={(formData as any).pharmacyName ?? ""}
+                                                    onChange={handleChange}
+                                                    placeholder="e.g. MedPlus Pharmacy"
+                                                    className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-violet-400 font-sans"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider block mb-1.5">
+                                                    Pharmacy License Number
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    name="pharmacyLicenseNumber"
+                                                    value={(formData as any).pharmacyLicenseNumber ?? ""}
+                                                    onChange={handleChange}
+                                                    placeholder="e.g. PH-12345"
+                                                    className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-violet-400 font-sans"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider block mb-1.5">
+                                                    City / Location
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    name="pharmacyCity"
+                                                    value={(formData as any).pharmacyCity ?? ""}
+                                                    onChange={handleChange}
+                                                    placeholder="e.g. Colombo"
+                                                    className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-violet-400 font-sans"
+                                                />
+                                            </div>
+                                        </motion.div>
+                                    )}     
 
                                     {errors.userType && <span className="block text-red-500 text-xs mt-1.5 font-medium">{errors.userType}</span>}
 
@@ -329,212 +431,188 @@ const SignUp: React.FC = () => {
                                                        style={{ background: "linear-gradient(135deg, #0f1c2e 0%, #1a2942 100%)" }}
                                                        whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                                             Continue
-                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                                <polyline points="9 18 15 12 9 6" />
-                                            </svg>
-                                        </motion.button>
-                                    </div>
-
-                                    <div className="flex items-center gap-4 my-6">
-                                        <div className="flex-1 h-px bg-gray-200" />
-                                        <span className="text-[13px] text-gray-400">Or sign up with</span>
-                                        <div className="flex-1 h-px bg-gray-200" />
-                                    </div>
-
-                                    <div className="flex justify-center mb-2">
-                                        <button type="button" className="min-w-[220px] py-3.5 px-8 border-2 border-gray-200 bg-white rounded-[14px] text-[15px] font-semibold text-[#1a1a1a] cursor-pointer flex items-center gap-2.5">
-                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                                                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-                                                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                                                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-                                                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-                                            </svg>
-                                            Continue with Google
-                                        </button>
-                                    </div>
-                                </motion.div>
-                            )}
-
-                            {/* STEP 2 */}
-                            {currentStep === 2 && (
-                                <motion.div key="s2" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.28 }}>
-                                    <div className="flex items-center gap-2 rounded-xl px-4 py-2.5 mb-5 text-[13px]"
-                                         style={{ background: "rgba(123,197,211,0.08)", border: "1px solid rgba(123,197,211,0.25)" }}>
-                                        <span className="text-gray-500">Signing up as</span>
-                                        <span className="font-bold flex-1" style={{ color: "#0f1c2e" }}>{selectedRole?.label}</span>
-                                        <button type="button" onClick={() => { setCurrentStep(1); setErrors({}); }}
-                                                className="bg-transparent border-none cursor-pointer text-[13px] font-semibold p-0" style={{ color: "#7bc5d3" }}>
-                                            Change
-                                        </button>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="mb-4">
-                                            <label className="block text-[13px] font-semibold mb-[7px]" style={{ color: "#1a1a1a" }}>First Name <span className="text-red-500">*</span></label>
-                                            <input type="text" name="firstName" value={formData.firstName} onChange={handleChange} placeholder="Sarah"
-                                                   className="w-full py-3.5 px-4 rounded-[14px] text-sm bg-white outline-none box-border"
-                                                   style={{ border: `2px solid ${errors.firstName ? "#ef4444" : "#e5e7eb"}`, color: "#1a1a1a" }} />
-                                            {errors.firstName && <span className="block text-red-500 text-xs mt-1.5 font-medium">{errors.firstName}</span>}
-                                        </div>
-                                        <div className="mb-4">
-                                            <label className="block text-[13px] font-semibold mb-[7px]" style={{ color: "#1a1a1a" }}>Last Name <span className="text-red-500">*</span></label>
-                                            <input type="text" name="lastName" value={formData.lastName} onChange={handleChange} placeholder="Mitchell"
-                                                   className="w-full py-3.5 px-4 rounded-[14px] text-sm bg-white outline-none box-border"
-                                                   style={{ border: `2px solid ${errors.lastName ? "#ef4444" : "#e5e7eb"}`, color: "#1a1a1a" }} />
-                                            {errors.lastName && <span className="block text-red-500 text-xs mt-1.5 font-medium">{errors.lastName}</span>}
-                                        </div>
-                                    </div>
-
-                                    <div className="mb-4">
-                                        <label className="block text-[13px] font-semibold mb-[7px]" style={{ color: "#1a1a1a" }}>Email Address <span className="text-red-500">*</span></label>
-                                        <div className="relative">
-                                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>
-                                            </div>
-                                            <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="sarah.mitchell@email.com"
-                                                   className="w-full py-3.5 pl-12 pr-4 rounded-[14px] text-sm bg-white outline-none box-border"
-                                                   style={{ border: `2px solid ${errors.email ? "#ef4444" : "#e5e7eb"}`, color: "#1a1a1a" }} />
-                                        </div>
-                                        {errors.email && <span className="block text-red-500 text-xs mt-1.5 font-medium">{errors.email}</span>}
-                                    </div>
-
-                                    <div className="mb-6">
-                                        <label className="block text-[13px] font-semibold mb-[7px]" style={{ color: "#1a1a1a" }}>Phone Number <span className="text-red-500">*</span></label>
-                                        <div className="relative">
-                                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
-                                            </div>
-                                            <input type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="+1 (555) 000-0000"
-                                                   className="w-full py-3.5 pl-12 pr-4 rounded-[14px] text-sm bg-white outline-none box-border"
-                                                   style={{ border: `2px solid ${errors.phone ? "#ef4444" : "#e5e7eb"}`, color: "#1a1a1a" }} />
-                                        </div>
-                                        {errors.phone && <span className="block text-red-500 text-xs mt-1.5 font-medium">{errors.phone}</span>}
-                                    </div>
-
-                                    <div className="grid gap-4" style={{ gridTemplateColumns: "auto 1fr" }}>
-                                        <motion.button type="button" onClick={goPrev}
-                                                       className="py-3.5 px-5 border-2 border-gray-200 rounded-[14px] text-[15px] font-semibold text-[#1a1a1a] bg-white flex items-center justify-center gap-2 cursor-pointer"
-                                                       whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
-                                            Back
-                                        </motion.button>
-                                        <motion.button type="button" onClick={goNext}
-                                                       className="py-3.5 px-6 border-none rounded-[14px] text-[15px] font-semibold text-white flex items-center justify-center gap-2 cursor-pointer"
-                                                       style={{ background: "linear-gradient(135deg, #0f1c2e 0%, #1a2942 100%)" }}
-                                                       whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                                            Continue
                                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
                                         </motion.button>
                                     </div>
                                 </motion.div>
                             )}
 
-                            {/* STEP 3 */}
-                            {currentStep === 3 && (
-                                <motion.div key="s3" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.28 }}>
-                                    <div className="mb-4">
-                                        <label className="block text-[13px] font-semibold mb-[7px]" style={{ color: "#1a1a1a" }}>Password <span className="text-red-500">*</span></label>
-                                        <div className="relative">
-                                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+                            {/*/!* STEP 2: Personal Info *!/*/}
+                            {/*{currentStep === 2 && (*/}
+                            {/*    <motion.div key="s2" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.28 }}>*/}
+                            {/*        <div className="grid grid-cols-2 gap-4">*/}
+                            {/*            <div className="mb-4">*/}
+                            {/*                <label className="block text-[13px] font-semibold mb-[7px]">First Name</label>*/}
+                            {/*                <input type="text" name="firstName" value={formData.firstName} onChange={handleChange} placeholder="Sarah"*/}
+                            {/*                       className="w-full py-3.5 px-4 rounded-[14px] text-sm bg-white outline-none border-2 border-gray-200"*/}
+                            {/*                       style={{ borderColor: errors.firstName ? "#ef4444" : "#e5e7eb" }} />*/}
+                            {/*                {errors.firstName && <span className="block text-red-500 text-xs mt-1.5">{errors.firstName}</span>}*/}
+                            {/*            </div>*/}
+                            {/*            <div className="mb-4">*/}
+                            {/*                <label className="block text-[13px] font-semibold mb-[7px]">Last Name</label>*/}
+                            {/*                <input type="text" name="lastName" value={formData.lastName} onChange={handleChange} placeholder="Mitchell"*/}
+                            {/*                       className="w-full py-3.5 px-4 rounded-[14px] text-sm bg-white outline-none border-2 border-gray-200"*/}
+                            {/*                       style={{ borderColor: errors.lastName ? "#ef4444" : "#e5e7eb" }} />*/}
+                            {/*            </div>*/}
+                            {/*        </div>*/}
+                            {/*        <div className="mb-4">*/}
+                            {/*            <label className="block text-[13px] font-semibold mb-[7px]">Email Address</label>*/}
+                            {/*            <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="sarah@email.com"*/}
+                            {/*                   className="w-full py-3.5 px-4 rounded-[14px] text-sm bg-white outline-none border-2 border-gray-200"*/}
+                            {/*                   style={{ borderColor: errors.email ? "#ef4444" : "#e5e7eb" }} />*/}
+                            {/*        </div>*/}
+                            {/*        <div className="mb-6">*/}
+                            {/*            <label className="block text-[13px] font-semibold mb-[7px]">Phone Number</label>*/}
+                            {/*            <input type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="+1 555-0000"*/}
+                            {/*                   className="w-full py-3.5 px-4 rounded-[14px] text-sm bg-white outline-none border-2 border-gray-200"*/}
+                            {/*                   style={{ borderColor: errors.phone ? "#ef4444" : "#e5e7eb" }} />*/}
+                            {/*        </div>*/}
+                            {/*        <div className="flex gap-4">*/}
+                            {/*            <button type="button" onClick={goPrev} className="flex-1 py-3.5 rounded-xl border-2 border-gray-200 font-bold text-sm">Back</button>*/}
+                            {/*            <button type="button" onClick={goNext} className="flex-1 py-3.5 rounded-xl text-white font-bold text-sm bg-[#0f1c2e]">Continue</button>*/}
+                            {/*        </div>*/}
+                            {/*    </motion.div>*/}
+                            {/*)}*/}
+
+                            {/* STEP 2: Personal Info */}
+                            {currentStep === 2 && (
+                                <motion.div key="s2" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.28 }}>
+
+                                    {formData.userType === "professional" ? (
+                                        // PHARMACY FIELDS
+                                        <div className="space-y-4">
+                                            <div className="mb-4">
+                                                <label className="block text-[13px] font-semibold mb-[7px]">Pharmacy Name</label>
+                                                <input type="text" name="pharmacyName"
+                                                       value={(formData as any).pharmacyName ?? ""}
+                                                       onChange={handleChange}
+                                                       placeholder="e.g. MedPlus Pharmacy"
+                                                       className="w-full py-3.5 px-4 rounded-[14px] text-sm bg-white outline-none border-2 border-gray-200"
+                                                       style={{ borderColor: errors.pharmacyName ? "#ef4444" : "#e5e7eb" }} />
+                                                {errors.pharmacyName && <span className="block text-red-500 text-xs mt-1.5">{errors.pharmacyName}</span>}
                                             </div>
-                                            <input type={showPassword ? "text" : "password"} name="password" value={formData.password} onChange={handleChange} placeholder="Create a strong password"
-                                                   className="w-full py-3.5 pl-12 pr-12 rounded-[14px] text-sm bg-white outline-none box-border"
-                                                   style={{ border: `2px solid ${errors.password ? "#ef4444" : "#e5e7eb"}`, color: "#1a1a1a" }} />
-                                            <button type="button" onClick={() => setShowPassword(!showPassword)}
-                                                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-gray-400 p-1 flex">
-                                                {showPassword ? (
-                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" /><line x1="1" y1="1" x2="23" y2="23" /></svg>
-                                                ) : (
-                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
-                                                )}
-                                            </button>
+                                            <div className="mb-4">
+                                                <label className="block text-[13px] font-semibold mb-[7px]">Owner / Manager Name</label>
+                                                <input type="text" name="firstName"
+                                                       value={formData.firstName}
+                                                       onChange={handleChange}
+                                                       placeholder="e.g. John Silva"
+                                                       className="w-full py-3.5 px-4 rounded-[14px] text-sm bg-white outline-none border-2 border-gray-200"
+                                                       style={{ borderColor: errors.firstName ? "#ef4444" : "#e5e7eb" }} />
+                                                {errors.firstName && <span className="block text-red-500 text-xs mt-1.5">{errors.firstName}</span>}
+                                            </div>
+                                            <div className="mb-4">
+                                                <label className="block text-[13px] font-semibold mb-[7px]">Email Address</label>
+                                                <input type="email" name="email"
+                                                       value={formData.email}
+                                                       onChange={handleChange}
+                                                       placeholder="pharmacy@email.com"
+                                                       className="w-full py-3.5 px-4 rounded-[14px] text-sm bg-white outline-none border-2 border-gray-200"
+                                                       style={{ borderColor: errors.email ? "#ef4444" : "#e5e7eb" }} />
+                                                {errors.email && <span className="block text-red-500 text-xs mt-1.5">{errors.email}</span>}
+                                            </div>
+                                            <div className="mb-4">
+                                                <label className="block text-[13px] font-semibold mb-[7px]">Contact Number</label>
+                                                <input type="tel" name="phone"
+                                                       value={formData.phone}
+                                                       onChange={handleChange}
+                                                       placeholder="+94 11 234 5678"
+                                                       className="w-full py-3.5 px-4 rounded-[14px] text-sm bg-white outline-none border-2 border-gray-200"
+                                                       style={{ borderColor: errors.phone ? "#ef4444" : "#e5e7eb" }} />
+                                            </div>
+                                            <div className="mb-6">
+                                                <label className="block text-[13px] font-semibold mb-[7px]">City</label>
+                                                <input type="text" name="pharmacyCity"
+                                                       value={(formData as any).pharmacyCity ?? ""}
+                                                       onChange={handleChange}
+                                                       placeholder="e.g. Colombo"
+                                                       className="w-full py-3.5 px-4 rounded-[14px] text-sm bg-white outline-none border-2 border-gray-200" />
+                                            </div>
                                         </div>
-                                        {formData.password && (
-                                            <div className="mt-2 flex items-center gap-3">
-                                                <div className="flex-1 h-[5px] bg-gray-200 rounded-[3px] overflow-hidden">
-                                                    <motion.div className="h-full rounded-[3px]" style={{ background: strengthColor() }}
-                                                                animate={{ width: `${passwordStrength}%` }} transition={{ duration: 0.3 }} />
+                                    ) : (
+                                        // PATIENT / DOCTOR FIELDS (existing)
+                                        <div>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="mb-4">
+                                                    <label className="block text-[13px] font-semibold mb-[7px]">First Name</label>
+                                                    <input type="text" name="firstName" value={formData.firstName} onChange={handleChange} placeholder="Sarah"
+                                                           className="w-full py-3.5 px-4 rounded-[14px] text-sm bg-white outline-none border-2 border-gray-200"
+                                                           style={{ borderColor: errors.firstName ? "#ef4444" : "#e5e7eb" }} />
+                                                    {errors.firstName && <span className="block text-red-500 text-xs mt-1.5">{errors.firstName}</span>}
                                                 </div>
-                                                <span className="text-xs font-semibold whitespace-nowrap" style={{ color: strengthColor() }}>{strengthText()}</span>
+                                                <div className="mb-4">
+                                                    <label className="block text-[13px] font-semibold mb-[7px]">Last Name</label>
+                                                    <input type="text" name="lastName" value={formData.lastName} onChange={handleChange} placeholder="Mitchell"
+                                                           className="w-full py-3.5 px-4 rounded-[14px] text-sm bg-white outline-none border-2 border-gray-200"
+                                                           style={{ borderColor: errors.lastName ? "#ef4444" : "#e5e7eb" }} />
+                                                </div>
                                             </div>
-                                        )}
-                                        {errors.password && <span className="block text-red-500 text-xs mt-1.5 font-medium">{errors.password}</span>}
-                                    </div>
-
-                                    <div className="mb-5">
-                                        <label className="block text-[13px] font-semibold mb-[7px]" style={{ color: "#1a1a1a" }}>Confirm Password <span className="text-red-500">*</span></label>
-                                        <div className="relative">
-                                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+                                            <div className="mb-4">
+                                                <label className="block text-[13px] font-semibold mb-[7px]">Email Address</label>
+                                                <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="sarah@email.com"
+                                                       className="w-full py-3.5 px-4 rounded-[14px] text-sm bg-white outline-none border-2 border-gray-200"
+                                                       style={{ borderColor: errors.email ? "#ef4444" : "#e5e7eb" }} />
                                             </div>
-                                            <input type={showPassword ? "text" : "password"} name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} placeholder="Re-enter your password"
-                                                   className="w-full py-3.5 pl-12 pr-4 rounded-[14px] text-sm bg-white outline-none box-border"
-                                                   style={{ border: `2px solid ${errors.confirmPassword ? "#ef4444" : "#e5e7eb"}`, color: "#1a1a1a" }} />
+                                            <div className="mb-6">
+                                                <label className="block text-[13px] font-semibold mb-[7px]">Phone Number</label>
+                                                <input type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="+1 555-0000"
+                                                       className="w-full py-3.5 px-4 rounded-[14px] text-sm bg-white outline-none border-2 border-gray-200"
+                                                       style={{ borderColor: errors.phone ? "#ef4444" : "#e5e7eb" }} />
+                                            </div>
                                         </div>
-                                        {errors.confirmPassword && <span className="block text-red-500 text-xs mt-1.5 font-medium">{errors.confirmPassword}</span>}
-                                    </div>
+                                    )}
 
-                                    <div className="flex items-start gap-3 mb-6">
-                                        <input type="checkbox" id="terms" name="terms" checked={formData.terms} onChange={handleChange}
-                                               className="w-[18px] h-[18px] mt-0.5 cursor-pointer flex-shrink-0" style={{ accentColor: "#7bc5d3" }} />
-                                        <label htmlFor="terms" className="text-[13px] text-gray-500 leading-relaxed cursor-pointer">
-                                            I agree to Medily's{" "}
-                                            <a href="#" onClick={(e) => e.preventDefault()} className="font-semibold no-underline" style={{ color: "#7bc5d3" }}>Terms of Service</a>{" "}
-                                            and{" "}
-                                            <a href="#" onClick={(e) => e.preventDefault()} className="font-semibold no-underline" style={{ color: "#7bc5d3" }}>Privacy Policy</a>.
-                                            {" "}I understand my data is encrypted and HIPAA compliant.
-                                        </label>
-                                    </div>
-                                    {errors.terms && <span className="block text-red-500 text-xs mb-4 font-medium">{errors.terms}</span>}
-
-                                    <div className="grid gap-4" style={{ gridTemplateColumns: "auto 1fr" }}>
-                                        <motion.button type="button" onClick={goPrev}
-                                                       className="py-3.5 px-5 border-2 border-gray-200 rounded-[14px] text-[15px] font-semibold text-[#1a1a1a] bg-white flex items-center justify-center gap-2 cursor-pointer"
-                                                       whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
-                                            Back
-                                        </motion.button>
-                                        <motion.button type="submit"
-                                                       className="py-3.5 px-6 border-none rounded-[14px] text-[15px] font-semibold text-white flex items-center justify-center gap-2 cursor-pointer transition-opacity"
-                                                       style={{ background: "linear-gradient(135deg, #0f1c2e 0%, #1a2942 100%)", opacity: isLoading ? 0.7 : 1 }}
-                                                       disabled={isLoading}
-                                                       whileHover={{ scale: isLoading ? 1 : 1.02 }} whileTap={{ scale: isLoading ? 1 : 0.98 }}>
-                                            {isLoading ? "Creating..." : (
-                                                <>
-                                                    Create Account{" "}
-                                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-                                                </>
-                                            )}
-                                        </motion.button>
+                                    <div className="flex gap-4 mt-2">
+                                        <button type="button" onClick={goPrev} className="flex-1 py-3.5 rounded-xl border-2 border-gray-200 font-bold text-sm">Back</button>
+                                        <button type="button" onClick={goNext} className="flex-1 py-3.5 rounded-xl text-white font-bold text-sm bg-[#0f1c2e]">Continue</button>
                                     </div>
                                 </motion.div>
                             )}
+
+                            {/* STEP 3: Security */}
+                            {currentStep === 3 && (
+                                <motion.div key="s3" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.28 }}>
+                                    <div className="mb-4">
+                                        <label className="block text-[13px] font-semibold mb-[7px]">Password</label>
+                                        <input type={showPassword ? "text" : "password"} name="password" value={formData.password} onChange={handleChange}
+                                               className="w-full py-3.5 px-4 rounded-[14px] text-sm outline-none border-2 border-gray-200" />
+                                        {formData.password && (
+                                            <div className="mt-2 flex items-center gap-3">
+                                                <div className="flex-1 h-1 bg-gray-200 rounded-full overflow-hidden">
+                                                    <div className="h-full transition-all" style={{ width: `${passwordStrength}%`, background: strengthColor() }} />
+                                                </div>
+                                                <span className="text-[10px] font-bold uppercase" style={{ color: strengthColor() }}>{strengthText()}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="mb-5">
+                                        <label className="block text-[13px] font-semibold mb-[7px]">Confirm Password</label>
+                                        <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange}
+                                               className="w-full py-3.5 px-4 rounded-[14px] text-sm outline-none border-2 border-gray-200" />
+                                        {errors.confirmPassword && <span className="block text-red-500 text-xs mt-1.5">{errors.confirmPassword}</span>}
+                                    </div>
+                                    <div className="flex items-start gap-3 mb-6">
+                                        <input type="checkbox" id="terms" name="terms" checked={formData.terms} onChange={handleChange} className="mt-1" />
+                                        <label htmlFor="terms" className="text-xs text-gray-500 leading-relaxed">
+                                            I agree to Medily's terms and privacy policies. I understand my medical data is encrypted.
+                                        </label>
+                                    </div>
+                                    <div className="flex gap-4">
+                                        <button type="button" onClick={goPrev} className="flex-1 py-3.5 rounded-xl border-2 border-gray-200 font-bold text-sm">Back</button>
+                                        <button type="submit" disabled={isLoading} className="flex-1 py-3.5 rounded-xl text-white font-bold text-sm bg-[#0f1c2e]">
+                                            {isLoading ? "Creating..." : "Create Account"}
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            )}
+
                         </AnimatePresence>
                     </form>
 
                     {/* Footer */}
-                    <div className="mt-7">
-                        <p className="text-center text-sm text-gray-500 mb-5">
-                            Already have an account?{" "}
-                            <a href="/login" className="font-semibold no-underline" style={{ color: "#7bc5d3" }}>Log in</a>
-                        </p>
-                        <div className="flex items-center justify-center gap-5 pt-5 border-t border-gray-200 flex-wrap">
-                            {[
-                                { icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>, label: "256-bit Encrypted" },
-                                { icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>, label: "HIPAA Compliant" },
-                                { icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>, label: "99.9% Uptime" },
-                            ].map((b) => (
-                                <div key={b.label} className="flex items-center gap-1.5 text-[11px] text-gray-500 font-medium">
-                                    <div className="w-6 h-6 rounded-[7px] flex items-center justify-center" style={{ background: "linear-gradient(135deg,#b8e0e8,#e8d5f2)", color: "#0f1c2e" }}>
-                                        {b.icon}
-                                    </div>
-                                    {b.label}
-                                </div>
-                            ))}
-                        </div>
+                    <div className="mt-7 pt-5 border-t border-gray-100 text-center">
+                        <p className="text-sm text-gray-500">Already have an account? <a href="/login" className="font-bold text-[#7bc5d3]">Log in</a></p>
                     </div>
-
                 </div>
             </motion.div>
         </div>

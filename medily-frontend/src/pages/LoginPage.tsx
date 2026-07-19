@@ -102,13 +102,30 @@ const Login: React.FC = () => {
       saveAuth(data);
       console.log("LS TOKEN:", localStorage.getItem("token"));
       console.log("LS ROLE:", localStorage.getItem("role"));
+      // navigate(redirectByRole(data.role));
+
+      if (data.role === "DOCTOR" || data.role === "PHARMACIST") {
+        if (data.accountStatus === "PENDING") {
+          navigate("/pending-verification");
+          return;
+        }
+        if (data.role === "DOCTOR" && !data.isSubscribed) {
+          navigate("/doctor-subscription");
+          return;
+        }
+      }
       navigate(redirectByRole(data.role));
+
     } catch (err: any) {
       console.error("ERR:", err);
       setError(err.response?.data?.message ?? "Invalid email or password");
     } finally {
       setIsLoading(false);
     }
+  };
+  // Add this function inside the Login component, after handleSubmit:
+  const handleGoogleLogin = () => {
+    window.location.href = "http://localhost:8080/oauth2/authorization/google";
   };
 
   // Quick-fill helpers
@@ -361,12 +378,20 @@ const Login: React.FC = () => {
               <span>or</span>
             </div>
 
-            <button type="button" className="google-btn" disabled={isLoading}>
+            <button
+                type="button"
+                className="google-btn"
+                disabled={isLoading}
+                onClick={handleGoogleLogin}>
+              <img
+                  src="https://www.svgrepo.com/show/475656/google-color.svg"
+                  alt="Google"
+                  style={{ width: 18, height: 18 }} />
               Continue with Google
             </button>
 
             <p className="signup-prompt">
-              Don't have an account? <a href="#signup">Create one</a>
+              Don't have an account? <a href="/signup">Create one</a>
             </p>
           </form>
         </div>

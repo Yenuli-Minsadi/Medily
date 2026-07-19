@@ -5,6 +5,9 @@ export type AuthResponse = {
     role: string;
     name: string;
     userId: number;
+    accountStatus: string;
+    isSubscribed: boolean;
+    email?: string;
 };
 
 export type LoginRequest = {
@@ -17,6 +20,9 @@ export type RegisterRequest = {
     email: string;
     password: string;
     role: string;
+    specialization?: string;
+    medicalRegNumber?: string;
+    pharmacyLicenseNumber?: string;
 };
 
 export const loginApi = async (data: LoginRequest): Promise<AuthResponse> => {

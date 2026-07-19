@@ -43,6 +43,9 @@ public class PrescriptionRequest {
     @Column(name = "requested_at", updatable = false)
     private LocalDateTime requestedAt;
 
+    @Column(name = "responded_at")
+    private LocalDateTime respondedAt;
+
     public enum Status {
         PENDING, AVAILABLE, NOT_AVAILABLE
     }

@@ -30,6 +30,7 @@ export interface PatientPrescription {
 // Pharmacist-facing prescription (incoming from patients)
 export interface PharmacyPrescription {
   id: string;
+  requestId?: number;
   patientName: string;
   patientAge: number;
   patientAvatar: string;
@@ -48,4 +49,13 @@ export interface StatusConfig {
   label: string;
   classes: string;
   dot: string;
+}
+
+export interface Prescription {
+  id: number;
+  doctorName: string;
+  issuedDate: string;
+  status: string;
+  notes?: string;
+  items: PrescriptionItem[];
 }

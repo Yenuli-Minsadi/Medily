@@ -2,8 +2,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import axios from "axios";
 
-type AdminTab = "overview" | "users" | "doctors" | "patients" | "pharmacies" | "appointments" | "activity";
+type AdminTab = "overview" | "users" | "doctors" | "patients" | "pharmacies" | "appointments" | "activity" | "verification";
 
 const NAV_ITEMS: { id: AdminTab; label: string; icon: string; badge?: string }[] = [
     { id: "overview",     label: "Overview",      icon: "📊" },
@@ -13,6 +14,7 @@ const NAV_ITEMS: { id: AdminTab; label: string; icon: string; badge?: string }[]
     { id: "pharmacies",   label: "Pharmacies",    icon: "💊", badge: "12" },
     { id: "appointments", label: "Appointments",  icon: "📅" },
     { id: "activity",     label: "Activity Log",  icon: "📋" },
+    { id: "verification", label: "Verification Queue", icon: "🔍", badge: "!" },
 ];
 
 // Mock data
@@ -197,33 +199,81 @@ const OverviewPage: React.FC<{ userName: string; onNavigate: (tab: AdminTab) => 
 // ── Users Table ──────────────────────────────────────────────────────────────
 const UsersPage: React.FC<{ roleFilter?: string; title: string }> = ({ roleFilter, title }) => {
     const [search, setSearch] = useState("");
-    const [users, setUsers] = useState(MOCK_USERS);
+    const [users, setUsers] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const token = localStorage.getItem("token");
+
+    useEffect(() => {
+        fetchUsers();
+    }, []);
+
+    const fetchUsers = async () => {
+        try {
+            const res = await axios.get("http://localhost:8080/api/admin/users", {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setUsers(res.data.data);
+        } catch (err) {
+            console.error("Failed to load users", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const toggleStatus = async (userId: number, currentStatus: string) => {
+        try {
+            const endpoint = currentStatus === "ACTIVE"
+                ? `http://localhost:8080/api/admin/users/${userId}/deactivate`
+                : `http://localhost:8080/api/admin/users/${userId}/activate`;
+
+            await axios.patch(endpoint, {}, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            // Update local state
+            setUsers(prev => prev.map(u =>
+                u.userId === userId
+                    ? { ...u, status: currentStatus === "ACTIVE" ? "INACTIVE" : "ACTIVE" }
+                    : u
+            ));
+        } catch (err) {
+            console.error("Failed to toggle status", err);
+            alert("Failed to update user status.");
+        }
+    };
 
     const filtered = users.filter(u => {
         const matchRole = !roleFilter || u.role === roleFilter;
         const q = search.toLowerCase();
-        return matchRole && (!q || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
+        return matchRole && (!q || u.fullName?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q));
     });
 
-    const toggleStatus = (id: number) => {
-        setUsers(prev => prev.map(u => u.id === id ? { ...u, status: u.status === "ACTIVE" ? "INACTIVE" : "ACTIVE" } : u));
-    };
+    if (loading) return (
+        <div className="flex items-center justify-center py-20">
+            <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+        </div>
+    );
 
     return (
         <div className="space-y-5">
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-black text-gray-900">{title}</h1>
-                    <p className="text-gray-500 text-sm mt-0.5">Manage and monitor {title.toLowerCase()}</p>
+                    <p className="text-gray-500 text-sm mt-0.5">
+                        Manage and monitor {title.toLowerCase()}
+                    </p>
                 </div>
-                <button className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 text-white font-semibold text-sm rounded-xl hover:bg-indigo-700 transition-colors shadow-md shadow-indigo-200">
-                    + Add New
-                </button>
             </div>
 
             <div className="relative w-64">
-                <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" /></svg>
-                <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search…" className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-indigo-400 transition-colors bg-white" />
+                <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                     width="16" height="16" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" strokeWidth="2">
+                    <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+                </svg>
+                <input value={search} onChange={e => setSearch(e.target.value)}
+                       placeholder="Search…"
+                       className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-indigo-400 bg-white" />
             </div>
 
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
@@ -231,37 +281,61 @@ const UsersPage: React.FC<{ roleFilter?: string; title: string }> = ({ roleFilte
                     <table className="w-full">
                         <thead>
                         <tr className="bg-gray-50 border-b border-gray-100">
-                            {["Name","Email","Role","Status","Joined","Actions"].map(h => (
-                                <th key={h} className="text-left text-xs font-bold text-gray-400 uppercase tracking-wider px-5 py-3.5">{h}</th>
+                            {["Name", "Email", "Role", "Status", "Joined", "Actions"].map(h => (
+                                <th key={h} className="text-left text-xs font-bold text-gray-400 uppercase tracking-wider px-5 py-3.5">
+                                    {h}
+                                </th>
                             ))}
                         </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
                         {filtered.map(u => (
-                            <tr key={u.id} className="hover:bg-gray-50/60 transition-colors">
+                            <tr key={u.userId} className="hover:bg-gray-50/60 transition-colors">
                                 <td className="px-5 py-3.5">
                                     <div className="flex items-center gap-3">
-                                        <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}&background=6366f1&color=fff&size=40`} alt="" className="w-8 h-8 rounded-lg" />
-                                        <span className="font-semibold text-gray-800 text-sm">{u.name}</span>
+                                        <img
+                                            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(u.fullName)}&background=6366f1&color=fff&size=40`}
+                                            alt="" className="w-8 h-8 rounded-lg" />
+                                        <span className="font-semibold text-gray-800 text-sm">
+                                                {u.fullName}
+                                            </span>
                                     </div>
                                 </td>
                                 <td className="px-5 py-3.5 text-sm text-gray-500">{u.email}</td>
-                                <td className="px-5 py-3.5"><span className={`text-xs font-bold px-2.5 py-1 rounded-full ${roleColors[u.role]}`}>{u.role}</span></td>
-                                <td className="px-5 py-3.5"><span className={`text-xs font-bold px-2.5 py-1 rounded-full ${statusColors[u.status]}`}>{u.status}</span></td>
-                                <td className="px-5 py-3.5 text-sm text-gray-500">{u.joined}</td>
+                                <td className="px-5 py-3.5">
+                                        <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${roleColors[u.role]}`}>
+                                            {u.role}
+                                        </span>
+                                </td>
+                                <td className="px-5 py-3.5">
+                                        <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${statusColors[u.status]}`}>
+                                            {u.status}
+                                        </span>
+                                </td>
+                                <td className="px-5 py-3.5 text-sm text-gray-500">
+                                    {u.createdAt ? u.createdAt.split("T")[0] : "—"}
+                                </td>
                                 <td className="px-5 py-3.5">
                                     <div className="flex items-center gap-2">
-                                        <button onClick={() => toggleStatus(u.id)} className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors ${u.status === "ACTIVE" ? "bg-red-50 text-red-600 hover:bg-red-100" : "bg-emerald-50 text-emerald-600 hover:bg-emerald-100"}`}>
+                                        <button
+                                            onClick={() => toggleStatus(u.userId, u.status)}
+                                            className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors ${
+                                                u.status === "ACTIVE"
+                                                    ? "bg-red-50 text-red-600 hover:bg-red-100"
+                                                    : "bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
+                                            }`}>
                                             {u.status === "ACTIVE" ? "Deactivate" : "Activate"}
                                         </button>
-                                        <button className="text-xs font-bold px-3 py-1.5 rounded-lg bg-gray-50 text-gray-600 hover:bg-gray-100 transition-colors">View</button>
+                                        <button className="text-xs font-bold px-3 py-1.5 rounded-lg bg-gray-50 text-gray-600 hover:bg-gray-100 transition-colors">
+                                            View
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
                         ))}
                         </tbody>
                     </table>
-                    {filtered.length === 0 && (
+                    {filtered.length === 0 && !loading && (
                         <div className="py-16 text-center">
                             <div className="text-4xl mb-3">🔍</div>
                             <p className="text-gray-500 font-medium">No results found</p>
@@ -351,6 +425,104 @@ const ActivityLogPage: React.FC = () => (
     </div>
 );
 
+const VerificationQueuePage: React.FC = () => {
+    const [pendingDoctors, setPendingDoctors] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const token = localStorage.getItem("token");
+
+    useEffect(() => {
+        axios.get("http://localhost:8080/api/admin/doctors/pending", {
+            headers: { Authorization: `Bearer ${token}` }
+        }).then(res => {
+            setPendingDoctors(res.data.data);
+            setLoading(false);
+        }).catch(err => {
+            console.error(err);
+            setLoading(false);
+        });
+    }, []);
+
+    const handleApprove = async (userId: number) => {
+        await axios.patch(
+            `http://localhost:8080/api/admin/doctors/${userId}/approve`,
+            {},
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setPendingDoctors(prev => prev.filter(d => d.userId !== userId));
+    };
+
+    const handleReject = async (userId: number) => {
+        await axios.patch(
+            `http://localhost:8080/api/admin/doctors/${userId}/reject`,
+            {},
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setPendingDoctors(prev => prev.filter(d => d.userId !== userId));
+    };
+
+    if (loading) return (
+        <div className="flex items-center justify-center py-20">
+            <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+        </div>
+    );
+
+    return (
+        <div className="space-y-5">
+            <div>
+                <h1 className="text-2xl font-black text-gray-900">Doctor Verification Queue</h1>
+                <p className="text-gray-500 text-sm mt-0.5">
+                    Review and verify doctor medical registrations
+                </p>
+            </div>
+
+            {pendingDoctors.length === 0 ? (
+                <div className="text-center py-16 bg-white rounded-2xl border-2 border-dashed border-gray-200">
+                    <div className="text-5xl mb-4">✅</div>
+                    <h3 className="font-bold text-gray-900">No pending verifications</h3>
+                    <p className="text-gray-500 text-sm mt-1">All doctor accounts have been reviewed</p>
+                </div>
+            ) : (
+                <div className="space-y-4">
+                    {pendingDoctors.map(doc => (
+                        <div key={doc.userId} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+                            <div className="flex items-center gap-4">
+                                <img
+                                    src={`https://ui-avatars.com/api/?name=${encodeURIComponent(doc.fullName)}&background=4f46e5&color=fff`}
+                                    alt="" className="w-14 h-14 rounded-2xl flex-shrink-0" />
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                        <span className="font-bold text-gray-900">{doc.fullName}</span>
+                                        <span className="bg-amber-100 text-amber-700 text-xs font-bold px-2.5 py-0.5 rounded-full">
+                                            PENDING
+                                        </span>
+                                    </div>
+                                    <div className="text-gray-500 text-sm mt-0.5">{doc.email}</div>
+                                    <div className="flex gap-4 mt-2 text-xs text-gray-400">
+                                        <span>🏥 {doc.specialization || "Not specified"}</span>
+                                        <span>📋 Reg No: <span className="font-bold text-gray-600">{doc.medicalRegNumber || "Not provided"}</span></span>
+                                    </div>
+                                </div>
+                                <div className="flex gap-2 flex-shrink-0">
+                                    <button
+                                        onClick={() => handleReject(doc.userId)}
+                                        className="px-4 py-2.5 border-2 border-red-200 text-red-600 rounded-xl text-sm font-bold hover:bg-red-50 transition-colors">
+                                        ✕ Reject
+                                    </button>
+                                    <button
+                                        onClick={() => handleApprove(doc.userId)}
+                                        className="px-4 py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-bold hover:bg-emerald-700 transition-colors shadow-md shadow-emerald-200">
+                                        ✓ Approve
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
+
 // ── Main Admin Dashboard ─────────────────────────────────────────────────────
 const AdminDashboard: React.FC = () => {
     const [userName, setUserName] = useState("Admin");
@@ -379,6 +551,7 @@ const AdminDashboard: React.FC = () => {
             case "pharmacies":   return <UsersPage title="Pharmacies" roleFilter="PHARMACIST" />;
             case "appointments": return <AppointmentsPage />;
             case "activity":     return <ActivityLogPage />;
+            case "verification": return <VerificationQueuePage />;
             default: return null;
         }
     };
@@ -391,6 +564,7 @@ const AdminDashboard: React.FC = () => {
         pharmacies:   "Pharmacies",
         appointments: "Appointments",
         activity:     "Activity Log",
+        verification: "Verification Queue",
     };
 
     return (

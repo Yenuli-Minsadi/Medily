@@ -5,6 +5,9 @@ export const saveAuth = (data: AuthResponse) => {
     localStorage.setItem("role", data.role);
     localStorage.setItem("name", data.name);
     localStorage.setItem("userId", String(data.userId));
+    localStorage.setItem("accountStatus", data.accountStatus ?? "ACTIVE");
+    localStorage.setItem("isSubscribed", String(data.isSubscribed ?? false));
+    localStorage.setItem("isSubscribed", String(data.isSubscribed ?? false));
 };
 
 export const clearAuth = () => {

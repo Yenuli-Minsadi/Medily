@@ -26,8 +26,8 @@ public class RateLimitingFilter extends OncePerRequestFilter {
 
     private Bucket createNewBucket() {
         return Bucket.builder()
-                .addLimit(Bandwidth.classic(10,
-                        Refill.intervally(10, Duration.ofMinutes(1))))
+                .addLimit(Bandwidth.classic(100,
+                        Refill.intervally(100, Duration.ofMinutes(1))))
                 .build();
     }
 
@@ -36,6 +36,14 @@ public class RateLimitingFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
+
+        String path = request.getRequestURI();
+
+        // Skip rate limiting for WebSocket and auth endpoints
+        if (path.startsWith("/ws") || path.startsWith("/api/auth")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         String key = resolveKey(request);
 

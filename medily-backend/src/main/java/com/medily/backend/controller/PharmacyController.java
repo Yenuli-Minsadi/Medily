@@ -50,4 +50,13 @@ public class PharmacyController {
                 .map(User::getUserId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
+
+    @GetMapping("/nearby")
+    public ResponseEntity<ApiResponse<List<PharmacyResponseDTO>>> getNearbyPharmacies(
+            @RequestParam Double lat,
+            @RequestParam Double lng,
+            @RequestParam(defaultValue = "60") Integer maxResponseMinutes) {
+        return ResponseEntity.ok(ApiResponse.success(
+                pharmacyService.getNearbyPharmaciesSorted(lat, lng, maxResponseMinutes)));
+    }
 }

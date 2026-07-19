@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,11 +27,19 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
     @Override
     public PrescriptionResponseDTO createPrescription(Integer doctorUserId, PrescriptionCreateRequestDTO request) {
+        System.out.println(">>> doctorUserId: " + doctorUserId);
+        System.out.println(">>> patientId: " + request.getPatientId());
+        System.out.println(">>> appointmentId: " + request.getAppointmentId());
+
         Doctor doctor = doctorRepository.findByUserUserId(doctorUserId)
                 .orElseThrow(() -> new RuntimeException("Doctor profile not found"));
+        System.out.println(">>> doctor found: " + doctor.getDoctorId());
+        System.out.println(">>> doctor clinic: " + doctor.getClinic());
 
         Patient patient = patientRepository.findById(request.getPatientId())
                 .orElseThrow(() -> new RuntimeException("Patient not found"));
+        System.out.println(">>> doctor found: " + doctor.getDoctorId());
+        System.out.println(">>> doctor clinic: " + doctor.getClinic());
 
         Appointment appointment = appointmentRepository.findById(request.getAppointmentId())
                 .orElseThrow(() -> new RuntimeException("Appointment not found"));
@@ -40,6 +49,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
         prescription.setPatient(patient);
         prescription.setAppointment(appointment);
         prescription.setNotes(request.getNotes());
+        prescription.setIssuedDate(request.getIssuedDate());
 
         Prescription saved = prescriptionRepository.save(prescription);
 

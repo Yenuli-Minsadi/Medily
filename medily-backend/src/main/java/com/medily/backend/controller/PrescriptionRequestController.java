@@ -21,6 +21,7 @@ public class PrescriptionRequestController {
 
     private final PrescriptionRequestService prescriptionRequestService;
     private final UserRepository userRepository;
+//    private final PrescriptionRequestService service;
 
     // Submit a prescription to a specific pharmacy (Patient only)
     @PostMapping
@@ -61,5 +62,15 @@ public class PrescriptionRequestController {
         return userRepository.findByEmail(email)
                 .map(User::getUserId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    @PutMapping("/{id}/respond")
+    public ResponseEntity<?> respond(
+            @PathVariable Integer id,
+            @RequestParam boolean available) {
+
+        prescriptionRequestService.respondToRequest(id, available);
+
+        return ResponseEntity.ok("Response saved");
     }
 }

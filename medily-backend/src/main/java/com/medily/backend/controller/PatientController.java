@@ -44,7 +44,7 @@ public class PatientController {
         return ResponseEntity.ok(ApiResponse.success(patientService.getAllPatients()));
     }
 
-//     List patients when writing prescriptions (Doctor only)
+    // List patients when writing prescriptions (Doctor only)
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<List<PatientResponseDTO>>> searchPatients(@RequestParam String name) {
         return ResponseEntity.ok(ApiResponse.success(patientService.searchByName(name)));

@@ -1,19 +1,25 @@
 package com.medily.backend.controller;
 
+import com.medily.backend.dto.appointment.AppointmentResponseDTO;
 import com.medily.backend.dto.clinic.ClinicRequestDTO;
 import com.medily.backend.dto.clinic.ClinicResponseDTO;
 import com.medily.backend.dto.common.ApiResponse;
 import com.medily.backend.dto.doctor.*;
+import com.medily.backend.entity.Appointment;
 import com.medily.backend.entity.User;
 import com.medily.backend.repository.UserRepository;
+import com.medily.backend.service.custom.AppointmentService;
 import com.medily.backend.service.custom.DoctorService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/doctors")
@@ -22,6 +28,7 @@ public class DoctorController {
 
     private final DoctorService doctorService;
     private final UserRepository userRepository;
+    private final AppointmentService appointmentService;
 
     // Initialize/update doctor profile after signup (Doctor only)
     @PostMapping("/profile")
@@ -52,6 +59,15 @@ public class DoctorController {
         return ResponseEntity.ok(ApiResponse.success(
                 doctorService.getDoctorsBySpecialization(specialization)));
     }
+
+    @GetMapping("/my-appointments")
+    public ResponseEntity<ApiResponse<List<AppointmentResponseDTO>>> getMyDoctorAppointments() {
+        Integer doctorUserId = getCurrentUserId();
+        return ResponseEntity.ok(ApiResponse.success(
+                appointmentService.getAppointmentsByDoctor(doctorUserId)
+        ));
+    }
+
     private Integer getCurrentUserId() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByEmail(email)
