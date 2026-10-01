@@ -70,18 +70,21 @@ public class AdminController {
     // Reject doctor
     @PatchMapping("/doctors/{userId}/reject")
     public ResponseEntity<ApiResponse<String>> rejectDoctor(@PathVariable Integer userId) {
-        User doctor = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Doctor not found"));
-        doctor.setAccountStatus(User.AccountStatus.REJECTED);
-        userRepository.save(doctor);
-
-        notificationService.createNotification(
-                doctor.getUserId(),
-                "Your account verification was unsuccessful. Please contact support.",
-                "VERIFICATION"
-        );
-
+//        User doctor = userRepository.findById(userId)
+//                .orElseThrow(() -> new RuntimeException("Doctor not found"));
+//        doctor.setAccountStatus(User.AccountStatus.REJECTED);
+//        userRepository.save(doctor);
+//
+//        notificationService.createNotification(
+//                doctor.getUserId(),
+//                "Your account verification was unsuccessful. Please contact support.",
+//                "VERIFICATION"
+//        );
+//
+//        return ResponseEntity.ok(ApiResponse.success("Doctor rejected"));
+        adminService.rejectDoctor(userId);
         return ResponseEntity.ok(ApiResponse.success("Doctor rejected"));
+
     }
 
     // Get all users

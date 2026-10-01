@@ -55,7 +55,22 @@ public class AdminServiceImpl implements AdminService {
 
         // Send email
         emailService.sendVerificationEmail(doctor.getEmail(), doctor.getFullName());
-        
+
+    }
+
+    @Override
+    @Transactional
+    public void rejectDoctor(Integer userId) {
+        User doctor = findUser(userId);
+        doctor.setAccountStatus(User.AccountStatus.REJECTED);
+        userRepository.save(doctor);
+
+        notificationService.createNotification(
+                doctor.getUserId(),
+                "Your account verification was unsuccessful. Please contact support.",
+                "VERIFICATION"
+        );
+
     }
 
     private User findUser(Integer userId) {
