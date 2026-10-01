@@ -18,7 +18,8 @@ export type PatientMenuItem =
   | "appointments"
   | "pharmacy"
   | "payments"
-  | "messages";
+  | "messages"
+  | "assistant";
 
 export type PharmacyMenuItem =
   | "overview"

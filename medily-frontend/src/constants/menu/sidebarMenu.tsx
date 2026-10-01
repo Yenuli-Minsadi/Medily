@@ -14,6 +14,7 @@ import {
   Package,
   ShoppingCart,
   Settings,
+  Bot
 } from "lucide-react";
 import type {
   DoctorMenuItem,
@@ -104,6 +105,7 @@ export const PATIENT_NAV_ITEMS: {
     icon: <MessageSquare size={18} />,
     badge: 3,
   },
+  { id: "assistant", label: "AI Assistant", icon: <Bot size={18} /> },
 ];
 
 // ─── Patient Dashboard Page Titles ─────────────────────────────────────────────
@@ -116,6 +118,7 @@ export const PATIENT_PAGE_TITLES: Record<PatientMenuItem, string> = {
   pharmacy: "Find Pharmacy",
   payments: "Payments",
   messages: "Messages",
+  assistant: "Assistant",
 };
 
 // ─── Pharmacist Dashboard Nav Items ─────────────────────────────────────────────

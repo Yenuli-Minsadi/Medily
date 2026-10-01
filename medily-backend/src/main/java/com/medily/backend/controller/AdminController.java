@@ -3,6 +3,7 @@ package com.medily.backend.controller;
 import com.medily.backend.dto.common.ApiResponse;
 import com.medily.backend.entity.User;
 import com.medily.backend.repository.UserRepository;
+import com.medily.backend.service.custom.AdminService;
 import com.medily.backend.service.custom.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,23 +22,25 @@ public class AdminController {
     private final UserRepository userRepository;
     private final NotificationService notificationService;
     private final EmailService emailService;
+    private final AdminService adminService;
 
     // Get all pending doctors
     @GetMapping("/doctors/pending")
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getPendingDoctors() {
-        List<Map<String, Object>> doctors = userRepository.findAll().stream()
-                .filter(u -> u.getRole().name().equals("DOCTOR")
-                        && u.getAccountStatus() == User.AccountStatus.PENDING)
-                .map(u -> Map.<String, Object>of(
-                        "userId", u.getUserId(),
-                        "fullName", u.getFullName(),
-                        "email", u.getEmail(),
-                        "specialization", u.getSpecialization() != null ? u.getSpecialization() : "",
-                        "medicalRegNumber", u.getMedicalRegNumber() != null ? u.getMedicalRegNumber() : "",
-                        "accountStatus", u.getAccountStatus().name()
-                ))
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(ApiResponse.success(doctors));
+//        List<Map<String, Object>> doctors = userRepository.findAll().stream()
+//                .filter(u -> u.getRole().name().equals("DOCTOR")
+//                        && u.getAccountStatus() == User.AccountStatus.PENDING)
+//                .map(u -> Map.<String, Object>of(
+//                        "userId", u.getUserId(),
+//                        "fullName", u.getFullName(),
+//                        "email", u.getEmail(),
+//                        "specialization", u.getSpecialization() != null ? u.getSpecialization() : "",
+//                        "medicalRegNumber", u.getMedicalRegNumber() != null ? u.getMedicalRegNumber() : "",
+//                        "accountStatus", u.getAccountStatus().name()
+//                ))
+//                .collect(Collectors.toList());
+//        return ResponseEntity.ok(ApiResponse.success(doctors));
+        return ResponseEntity.ok(ApiResponse.success(adminService.getPendingDoctors()));
     }
 
     // Approve doctor

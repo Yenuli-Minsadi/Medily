@@ -22,6 +22,7 @@ import { getUserId } from "../lib/auth";
 import { ChatUI } from "../components/ChatUI.tsx";
 import { StripePaymentModal as StripeModal } from "./StripePaymentModal.tsx";
 import ProfileSettings from "./ProfileSettings";
+import AssistantChatPage from "./AssistantChatPage";
 
 // Stripe Modal
 // interface StripeModalProps {
@@ -1159,6 +1160,7 @@ const PatientDashboard: React.FC = () => {
                 />
             );
             case "payments": return <PaymentsPage onPay={openPay} />;
+            case "assistant": return <AssistantChatPage />;
             default: return null;
         }
     };
