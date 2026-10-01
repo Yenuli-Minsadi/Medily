@@ -5,11 +5,16 @@ import com.medily.backend.repository.UserRepository;
 import com.medily.backend.service.custom.AdminService;
 import com.medily.backend.service.custom.EmailService;
 import com.medily.backend.service.custom.NotificationService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+
+@Service
+@RequiredArgsConstructor
 public class AdminServiceImpl implements AdminService {
 
     private final UserRepository userRepository;
