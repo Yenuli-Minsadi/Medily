@@ -7,7 +7,9 @@ import com.medily.backend.service.custom.EmailService;
 import com.medily.backend.service.custom.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.beans.Transient;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -38,10 +40,27 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @Transactional
     public void approveDoctor(Integer userId) {
+        User doctor = findUser(userId);
+        doctor.setAccountStatus(User.AccountStatus.ACTIVE);
+        userRepository.save(doctor);
 
+        // Send in-app notification
+        notificationService.createNotification(
+                doctor.getUserId(),
+                "Your account has been verified! You can now access all features.",
+                "VERIFICATION"
+        );
+
+        // Send email
+        emailService.sendVerificationEmail(doctor.getEmail(), doctor.getFullName());
+        
     }
 
+    private User findUser(Integer userId) {
+        return  userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+    }
 
 
 }

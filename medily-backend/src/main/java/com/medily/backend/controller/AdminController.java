@@ -46,22 +46,25 @@ public class AdminController {
     // Approve doctor
     @PatchMapping("/doctors/{userId}/approve")
     public ResponseEntity<ApiResponse<String>> approveDoctor(@PathVariable Integer userId) {
-        User doctor = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Doctor not found"));
-        doctor.setAccountStatus(User.AccountStatus.ACTIVE);
-        userRepository.save(doctor);
+//        User doctor = userRepository.findById(userId)
+//                .orElseThrow(() -> new RuntimeException("Doctor not found"));
+//        doctor.setAccountStatus(User.AccountStatus.ACTIVE);
+//        userRepository.save(doctor);
+//
+//        // Send in-app notification
+//        notificationService.createNotification(
+//                doctor.getUserId(),
+//                "Your account has been verified! You can now access all features.",
+//                "VERIFICATION"
+//        );
+//
+//        // Send email
+//        emailService.sendVerificationEmail(doctor.getEmail(), doctor.getFullName());
+//
+//        return ResponseEntity.ok(ApiResponse.success("Doctor approved successfully"));
+        adminService.approveDoctor(userId);
+        return ResponseEntity.ok(ApiResponse.success("Doctor Approved Successfully"));
 
-        // Send in-app notification
-        notificationService.createNotification(
-                doctor.getUserId(),
-                "Your account has been verified! You can now access all features.",
-                "VERIFICATION"
-        );
-
-        // Send email
-        emailService.sendVerificationEmail(doctor.getEmail(), doctor.getFullName());
-
-        return ResponseEntity.ok(ApiResponse.success("Doctor approved successfully"));
     }
 
     // Reject doctor
